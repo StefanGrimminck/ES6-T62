@@ -1,105 +1,112 @@
-/*
- * proc-reader-1.c 
- * 
- * ES6 Peek & Poke assignment
- * Made by Stefan Grimminck & Skip Geldens
- * 
- * This is a kernel module that will read a file
- * on the /proc filesystem, and will return the 
- * contents of the registers that were asked for.
- * 
- * The protocol is as follows:
- * To read 8 registers from address 0x400a8014:
- * r 400a8014 8
- * 
- * To write the value 0x3ff to register 0x400a8014:
- * w 400a8014 3ff
- * 
- */
 
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/init.h>
-#include <linux/proc_fs.h>
-#include <asm/uaccess.h>
+#include < linux / kernel.h > /* We're doing kernel work */ #include < linux / module.h > /* Specifically, a module */ #include < linux / kobject.h > /* Necessary because we use sysfs */ #include < linux / device.h > #include < mach / hardware.h >
 
-// This is used to give a license to the module, and to
-// not taint the kernel with this module.
-MODULE_AUTHOR("Stefan Grimminck & Skip Geldens");
-MODULE_DESCRIPTION("A driver for reading registers");
-MODULE_LICENSE("MIT");
+  #define sysfs_dir "buffer"#
+#define sysfs_file "data"
 
-// The name of the proc node
-#define procfs_name "regread"
-#define procfs_max_size 1024
 
-// The structure for the proc file
-struct proc_dir_entry *proc_file;
-static unsigned long procfs_buffer_size = 0;
-static char procfs_buffer[procfs_max_size];
+define sysfs_max_data_size 1024 /* due to limitations of sysfs, you mustn't go above PAGE_SIZE, 1k is already a *lot* of information for sysfs! */
+static char sysfs_buffer[sysfs_max_data_size + 1] = "HelloWorld!\n"; /* an extra byte for the '\0' terminator */
+static ssize_t used_buffer_size = 0;
 
-// This function is called when the /proc file is read from.
-int procfile_read(char *buffer,
-                char **buffer_location,
-                off_t offset, int buffer_length, 
-                int *eof, void *data)
-                {
-                    int ret;
+static ssize_t
+sysfs_show(struct device * dev,
+  struct device_attribute * attr,
+  char * buffer) {
+  printk(KERN_INFO "sysfile_read (/sys/kernel/%s/%s) called\n", sysfs_dir, sysfs_file);
 
-                    printk(KERN_INFO "function procfile_read on /proc/%s \n", procfs_name);
+  /*
+   * The only change here is that we now return sysfs_buffer, rather than a fixed HelloWorld string.
+   */
+  return sprintf(buffer, "%s", sysfs_buffer);
+}
 
-                    if(offset > 0){
-                        // Read finished
-                        ret = 0;
-                    }
-                    else {
-                        // TODO
-                        // fill the buffer with the data the user wants
-                        ret = sprintf(buffer, "Test data! \n");
-                    }
-                    return ret;
-                }
+static ssize_t
+sysfs_store(struct device * dev,
+  struct device_attribute * attr,
+  const char * buffer,
+    size_t count) {
+  char io = 'r';
+  uint32_t addr = 0;
+  int value = 0;
+  sscanf(buffer, "%c 0x%x %d", & io, & addr, & value);
+  printk(KERN_INFO "Read or Write: %c\n", io);
+  printk(KERN_INFO "Register: 0x%x\n", addr);
+  printk(KERN_INFO "Value: %d\n", value);
+  uint32_t * regval = io_p2v(addr);
 
-// This function is called when the /proc file is written to.
-int procfile_write(struct file *file, const char *buffer, unsigned long count,
-                    void *data){
-                        printk(KERN_INFO "Function procfile_write on /proc/%s \n", procfs_name);
-                        // Get size of the /proc buffer
-                        procfs_buffer_size = count;
-                        if(procfs_buffer_size > procfs_max_size){
-                            procfs_buffer_size = procfs_max_size;
-                        }
+  switch (io) {
+  case 'r':
+    int i = 0;
+    /*
+    printk(KERN_INFO "Hardware Address: %d\n", addr); 
+    printk(KERN_INFO "Value of Address: %d\n", *(uint32_t*)regval);
+    */
 
-                        printk(KERN_INFO, "Size of procfile buffer: %l \n", procfs_buffer_size);
-                        return procfs_buffer_size;
-                    }
-
-static int __init proc_reader_1_init(void){
-    proc_file = create_proc_entry(procfs_name, 0644, NULL);
-
-    if(proc_file == NULL){
-        remove_proc_entry(procfs_name, NULL);
-        printk(KERN_ALERT "Error: could not start the proc file /proc/%s \n", procfs_name);
-        return -1;
+    for (int i = 0; i < value; i++) {
+      vincent = regval + sizeof(uint32_t) * i
+      printk(KERN_INFO "Value of Address: %d\n", * (uint32_t * ) vincent);
     }
+    break;
+  case 'w':
+    * (uint32_t * ) regval = value;
+    break;
+  default:
+    printk(KERN_INFO "Wrong Value");
+    break;
 
-    proc_file->read_proc    = procfile_read;
-    proc_file->write_proc   = procfile_write;
-    //proc_file->owner        = THIS_MODULE;
-    proc_file->mode         = S_IFREG | S_IRUGO;
-    proc_file->uid          = 0;
-    proc_file->gid          = 0;
-    proc_file->size         = 37;
+  }
 
-    printk(KERN_INFO "Procfs module created. \n");
-    // Return 0 on success
-    return 0;
+  return count;
 }
 
-static void __exit proc_reader_1_exit(void){
-    remove_proc_entry(procfs_name, NULL);
-    printk(KERN_INFO "Procfs module unloaded. \n");
+/* 
+ * This line is now changed: in the previous example, the last parameter to DEVICE_ATTR
+ * was NULL, now we add a store function as well. We must also add writing rights to the file:
+ */
+static DEVICE_ATTR(data, S_IWUGO | S_IRUGO, sysfs_show, sysfs_store);
+
+/*
+ * This is identical to previous example.
+ */
+static struct attribute * attrs[] = { & dev_attr_data.attr,
+  NULL /* need to NULL terminate the list of attributes */
+};
+static struct attribute_group attr_group = {
+  .attrs = attrs,
+};
+static struct kobject * hello_obj = NULL;
+
+int __init sysfs_init(void) {
+  int result = 0;
+
+  /*
+   * This is identical to previous example.
+   */
+  hello_obj = kobject_create_and_add(sysfs_dir, kernel_kobj);
+  if (hello_obj == NULL) {
+    printk(KERN_INFO "%s module failed to load: kobject_create_and_add failed\n", sysfs_file);
+    return -ENOMEM;
+  }
+
+  result = sysfs_create_group(hello_obj, & attr_group);
+  if (result != 0) {
+    /* creating files failed, thus we must remove the created directory! */
+    printk(KERN_INFO "%s module failed to load: sysfs_create_group failed with result %d\n", sysfs_file, result);
+    kobject_put(hello_obj);
+    return -ENOMEM;
+  }
+
+  printk(KERN_INFO "/sys/kernel/%s/%s created\n", sysfs_dir, sysfs_file);
+  return result;
 }
 
-module_init(proc_reader_1_init);
-module_exit(proc_reader_1_exit);
+void __exit sysfs_exit(void) {
+  kobject_put(hello_obj);
+  printk(KERN_INFO "/sys/kernel/%s/%s removed\n", sysfs_dir, sysfs_file);
+}
+module_init(sysfs_init);
+module_exit(sysfs_exit);
+MODULE_LICENSE("MIT");
+MODULE_AUTHOR("Skip Geldens & Stefan Grimmincks");
+MODULE_DESCRIPTION("sysfs buffer");
