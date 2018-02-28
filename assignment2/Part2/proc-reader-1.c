@@ -42,29 +42,16 @@ sysfs_store(struct device *dev,
 	
 	switch(io)
 	{
-	case 'r':
-	
-	
-		
+	case 'r':	
 		printk(KERN_INFO "Hardware Address: %d\n", addr); 
-		printk(KERN_INFO "Value of Address: %d\n", *(uint32_t*)regval);
-		
-		/*
-		int i;
-		for (i = 0; i < value; i++)
-		{
-			uint32_t reg = regval + sizeof(uint32_t) * i;
-			printk(KERN_INFO "Value of Address: %d\n", *(uint32_t*)reg);
-		}
-		*/
-		
-	break;
+		printk(KERN_INFO "Value of Address: %d\n", *(uint32_t*)regval);			
+		break;
 	case 'w':
-	*(uint32_t*)regval = value;
-	break;
+		*(uint32_t*)regval = value;
+		break;
 	default:	
-	printk(KERN_INFO "Wrong Value");
-	break;
+		printk(KERN_INFO "Wrong Value");
+		break;
 		
 	}
 
@@ -127,6 +114,6 @@ void __exit sysfs_exit(void)
 
 module_init(sysfs_init);
 module_exit(sysfs_exit);
-MODULE_LICENSE("MIT");
+MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("Skip Geldens & Stefan Grimminck");
 MODULE_DESCRIPTION("sysfs buffer");
