@@ -1,11 +1,14 @@
 
-#include < linux / kernel.h > /* We're doing kernel work */ #include < linux / module.h > /* Specifically, a module */ #include < linux / kobject.h > /* Necessary because we use sysfs */ #include < linux / device.h > #include < mach / hardware.h >
+#include < linux / kernel.h > /* We're doing kernel work */ 
+#include < linux / module.h > /* Specifically, a module */ 
+#include < linux / kobject.h > /* Necessary because we use sysfs */ 
+#include < linux / device.h > 
+#include < mach / hardware.h >
 
-  #define sysfs_dir "buffer"#
+#define sysfs_dir "buffer"
 #define sysfs_file "data"
+#define sysfs_max_data_size 1024 /* due to limitations of sysfs, you mustn't go above PAGE_SIZE, 1k is already a *lot* of information for sysfs! */
 
-
-define sysfs_max_data_size 1024 /* due to limitations of sysfs, you mustn't go above PAGE_SIZE, 1k is already a *lot* of information for sysfs! */
 static char sysfs_buffer[sysfs_max_data_size + 1] = "HelloWorld!\n"; /* an extra byte for the '\0' terminator */
 static ssize_t used_buffer_size = 0;
 
@@ -39,17 +42,18 @@ sysfs_store(struct device * dev,
   case 'r':
     int i = 0;
     /*
+    THIS WORKS, BUT WE WANT TO READ MORE THAN JUST 4 BYTES
     printk(KERN_INFO "Hardware Address: %d\n", addr); 
     printk(KERN_INFO "Value of Address: %d\n", *(uint32_t*)regval);
     */
 
     for (int i = 0; i < value; i++) {
       vincent = regval + sizeof(uint32_t) * i
-      printk(KERN_INFO "Value of Address: %d\n", * (uint32_t * ) vincent);
+      printk(KERN_INFO "Value of Address: %d\n", *(uint32_t *) vincent);
     }
     break;
   case 'w':
-    * (uint32_t * ) regval = value;
+    *(uint32_t * ) regval = value;
     break;
   default:
     printk(KERN_INFO "Wrong Value");
