@@ -5,7 +5,7 @@
 #include <mach/hardware.h>
 
 #define sysfs_dir  "es6"
-#define sysfs_file "hw"
+#define sysfs_file "data"
 
 #define sysfs_max_data_size 1024 /* due to limitations of sysfs, you mustn't go above PAGE_SIZE, 1k is already a *lot* of information for sysfs! */
 static char sysfs_buffer[sysfs_max_data_size+1] = "HelloWorld!\n"; /* an extra byte for the '\0' terminator */
@@ -34,23 +34,26 @@ sysfs_store(struct device *dev,
     uint32_t addr = 0;
     int value = 0;
     sscanf(buffer, "%c 0x%x %d", &io, &addr, &value);
+    
+	/*
 	printk(KERN_INFO "Read or Write: %c\n", io);
 	printk(KERN_INFO "Register: 0x%x\n", addr);
 	printk(KERN_INFO "Value: %d\n", value);
-	uint32_t *regval = io_p2v(addr);
+	*/
 	
+	uint32_t *regval = io_p2v(addr);
 	
 	switch(io)
 	{
 	case 'r':	
 		printk(KERN_INFO "Hardware Address: %d\n", addr); 
-		printk(KERN_INFO "Value of Address: %d\n", *(uint32_t*)regval);			
+		printk(KERN_INFO "Value of Register: %d\n", *(uint32_t*)regval);			
 		break;
 	case 'w':
 		*(uint32_t*)regval = value;
 		break;
 	default:	
-		printk(KERN_INFO "Wrong Value");
+		printk(KERN_INFO "Wrong input parameters");
 		break;
 		
 	}
@@ -82,10 +85,6 @@ static struct kobject *hello_obj = NULL;
 int __init sysfs_init(void)
 {
     int result = 0;
-
-    /*
-     * This is identical to previous example.
-     */
     hello_obj = kobject_create_and_add(sysfs_dir, kernel_kobj);
     if (hello_obj == NULL)
     {
