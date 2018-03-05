@@ -9,7 +9,6 @@
 
 #define sysfs_max_data_size 1024 /* due to limitations of sysfs, you mustn't go above PAGE_SIZE, 1k is already a *lot* of information for sysfs! */
 static char sysfs_buffer[sysfs_max_data_size+1] = "HelloWorld!\n"; /* an extra byte for the '\0' terminator */
-static ssize_t used_buffer_size = 0;
 
 static ssize_t
 sysfs_show(struct device *dev,
@@ -31,23 +30,26 @@ sysfs_store(struct device *dev,
             size_t count)
 {   
     char io = 'r';
+    int i = 0;
     uint32_t addr = 0;
+    uint32_t *regval = 0;
     int value = 0;
-    sscanf(buffer, "%c 0x%x %d", &io, &addr, &value);
+    sscanf(buffer, "%c %x %x", &io, &addr, &value);
     
-	/*
-	printk(KERN_INFO "Read or Write: %c\n", io);
-	printk(KERN_INFO "Register: 0x%x\n", addr);
-	printk(KERN_INFO "Value: %d\n", value);
-	*/
+    regval = io_p2v(addr);
 	
-	uint32_t *regval = io_p2v(addr);
 	
 	switch(io)
 	{
 	case 'r':	
-		printk(KERN_INFO "Hardware Address: %d\n", addr); 
-		printk(KERN_INFO "Value of Register: %d\n", *(uint32_t*)regval);			
+		
+		for (i = 0; i < value; i++)
+		{
+
+      		printk(KERN_INFO "Value of Register : %u\n", *(uint32_t*)regval);
+      		regval++;
+		}
+					
 		break;
 	case 'w':
 		*(uint32_t*)regval = value;
