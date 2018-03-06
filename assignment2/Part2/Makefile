@@ -1,4 +1,4 @@
-obj-m += proc-reader-1.o
+obj-m += sys-reader-1.o
 
 
 .PHONY: clean
@@ -13,5 +13,4 @@ arm:
 
 clean:
 	make -C /home/student/felabs/sysdev/tinysystem/linux-2.6.34 M=$(PWD) clean
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
 

@@ -1,15 +1,42 @@
-#include <linux/kernel.h>    /* We're doing kernel work */
-#include <linux/module.h>    /* Specifically, a module */
-#include <linux/kobject.h>   /* Necessary because we use sysfs */
+/*
+ * sys-reader-1.c 
+ * 
+ * ES6 Peek & Poke assignment
+ * Made by Stefan Grimminck & Skip Geldens
+ * 
+ * This is a kernel module that will read a file
+ * on the /sys filesystem, and will return the 
+ * contents of the registers that were asked for.
+ * The module can also be used to write a value 
+ * to a certain register.
+ * 
+ * The protocol is as follows:
+ * To read 8 registers from address 0x400a8014:
+ * r 400a8014 8
+ * 
+ * To write the value 0x3ff to register 0x400a8014:
+ * w 400a8014 3ff
+ * 
+ */
+#define LPC3250 0 /* Set this to 1 to build for LPC, 0 to build for x86 */
+
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/kobject.h>
 #include <linux/device.h>
+#if LPC3250
 #include <mach/hardware.h>
+#endif
 
 #define sysfs_dir  "es6"
-#define sysfs_file "data"
+#define sysfs_file "hw"
 
 #define sysfs_max_data_size 1024 /* due to limitations of sysfs, you mustn't go above PAGE_SIZE, 1k is already a *lot* of information for sysfs! */
-static char sysfs_buffer[sysfs_max_data_size+1] = "HelloWorld!\n"; /* an extra byte for the '\0' terminator */
+static char sysfs_buffer[sysfs_max_data_size+1] = ""; /* an extra byte for the '\0' terminator */
 
+/*
+ * This function is called when a user wants to read the sys file
+ */
 static ssize_t
 sysfs_show(struct device *dev,
            struct device_attribute *attr,
@@ -18,11 +45,14 @@ sysfs_show(struct device *dev,
     printk(KERN_INFO "sysfile_read (/sys/kernel/%s/%s) called\n", sysfs_dir, sysfs_file);
     
     /*
-     * The only change here is that we now return sysfs_buffer, rather than a fixed HelloWorld string.
+     * Return the sysfs_buffer we first filled in the sysfs_store function
      */
     return sprintf(buffer, "%s", sysfs_buffer);
 }
 
+/*
+ * This function is called when a user writes something to the sys file
+ */
 static ssize_t
 sysfs_store(struct device *dev,
             struct device_attribute *attr,
@@ -34,25 +64,35 @@ sysfs_store(struct device *dev,
     uint32_t addr = 0;
     uint32_t *regval = 0;
     int value = 0;
+    static char temp_buffer[sizeof(uint32_t)]; /* Used to concat the value of a register to the sys file */
     sscanf(buffer, "%c %x %x", &io, &addr, &value);
     
-    regval = io_p2v(addr);
+    //*regval = addr;
+    #if LPC3250
+        regval = io_p2v(addr);
+    #endif
 	
 	
 	switch(io)
 	{
 	case 'r':	
-		
+		/* Only read a certain amount of registers, to not let the /sys buffer overflow */
+        if(value > (sysfs_max_data_size / sizeof(uint32_t))){
+            value = (sysfs_max_data_size / sizeof(uint32_t));
+        }
+
 		for (i = 0; i < value; i++)
 		{
-
-      		printk(KERN_INFO "Value of Register : %u\n", *(uint32_t*)regval);
-      		regval++;
+      		printk(KERN_INFO "Value of Register : %u\n", *(uint32_t*)regval); /* print to the kernel log */
+            sprintf(temp_buffer, "%u", *(uint32_t*)regval);
+            strcat(sysfs_buffer, temp_buffer);
+            regval++;
 		}
 					
 		break;
 	case 'w':
 		*(uint32_t*)regval = value;
+        printk(KERN_INFO "Wrote: %u to address: %x", value, addr);
 		break;
 	default:	
 		printk(KERN_INFO "Wrong input parameters");
@@ -67,15 +107,17 @@ sysfs_store(struct device *dev,
 /* 
  * This line is now changed: in the previous example, the last parameter to DEVICE_ATTR
  * was NULL, now we add a store function as well. We must also add writing rights to the file:
+ * 
+ * We also changes the first parameter of this macro from 'data' to 'hw'
  */
-static DEVICE_ATTR(data, S_IWUGO | S_IRUGO, sysfs_show, sysfs_store);
+static DEVICE_ATTR(hw, S_IWUGO | S_IRUGO, sysfs_show, sysfs_store);
 
 
 /*
- * This is identical to previous example.
+ * because we changed the macro above, the struct is now: dev_attr_hw
  */
 static struct attribute *attrs[] = {
-    &dev_attr_data.attr,
+    &dev_attr_hw.attr,
     NULL   /* need to NULL terminate the list of attributes */
 };
 static struct attribute_group attr_group = {
