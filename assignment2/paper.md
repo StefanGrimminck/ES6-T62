@@ -129,7 +129,7 @@ After the translation is made we loop through the for-loop for the amount of reg
 
 We check that the amount of data we read is smaller than or equal to our buffer length, this is done to prevent writing in memory that isn't ours. If the ```temp_buffer ``` is bigger than our ```sysfs_buffer ``` we won't write to the ```sysfs_buffer ``` buffer, otherwise we do.
 
-After writing to the buffer ```sysfs_show()``` is called to read the values back to the user.
+After writing to the buffer ```sysfs_show()``` is called to log the change.
 
 
 #### Writing registers
