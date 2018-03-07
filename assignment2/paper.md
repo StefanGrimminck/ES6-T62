@@ -100,9 +100,9 @@ After we have initialised the sysfs the module can do its work!
 
 #### Reading registers
 
-First we implemented the functionality of reading to registers. This way we can confirm our code by reading the Up Counter from te RTC. We then can use this to verify the writing function.
+First we implemented the functionality for reading the registers. This way we can confirm our code by reading the Up Counter from te RTC. Wen that's verified we can use this to verify the writing function.
 
-Reading regsiters is done by the following code:
+Reading registers is done by the following code:
 ```c
 for (i = 0; i < value; i++) {
     /* print to the kernel log */
