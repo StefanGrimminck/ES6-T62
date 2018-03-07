@@ -108,13 +108,17 @@ After we have initialised the sysfs the module can do its work!
 https://www.kernel.org/doc/Documentation/filesystems/sysfs.txt
 
 
-### testing the kernel module
+### Testing the kernel module
 
 To test our kernel module we'll be reading the value of Up Counter of the Real Time Clock (RTC) using its
-address. The value of this register will increase every second.
-When reading this register 3 times we verified this feature. 
+address. Using the LPC3250 manual we found the register for the Up Counter to be 0x40024000.
+The value of this register will increase every second, wich we'll use to verify that we are reading the correct registers .
+When reading this register 3 times we verified this feature as seen below. 
 
-```shell
+We also read two registers to check if this functionality worked. 
+In contrast to the Up Counter this value decreases every second. By executing this command we can also check if the reading from or writing to our buffer works, which it does.
+
+```c
 # echo "r 40024000 2" > /sys/kernel/es6/hw && cat /sys/kernel/es6/hw
 Value of Register : 2178304742
 Value of Register : 2136923088
