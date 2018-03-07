@@ -5,9 +5,6 @@ T62
 
 We set out to make an application that could read registers from user-space. We wanted to see what the results were, because we believe that this is not possible. 
 
-https://www.embedded.com/design/programming-languages-and-tools/4432746/Device-registers-in-C
-https://www.infradead.org/~mchehab/kernel_docs/unsorted/rtc.html
-
 ```c
 int main(){
 	uint32_t* info = (uint32_t*)0x40024000;
@@ -94,7 +91,7 @@ This snippet shows a struct that contains multiple of the before mentioned devic
 This code in the init function of the module eventually creates the files in the /sys filesystem. You can see two functions, the ```kobject_create_and_add()``` and ```sysfs_create_group()```. 
 
 The ```kobject_create_and_add()``` function makes a kobject struct, and registers it with the sysfs. The name (first argument) is what gives us a directory in the sysfs where we can create different files in. 
-(https://www.kernel.org/doc/html/latest/driver-api/basics.html?highlight=kobject_create#c.kobject_create_and_add)
+
 
 
 The ```sysfs_create_group()``` function takes the kernel object we just created, and fills it the attr_group struct. This looks to be the same as using ```sysfs_create_file()```, but for multiple files at once! 
@@ -134,9 +131,6 @@ We check that the amount of data we read is smaller than or equal to our buffer 
 
 After writing to the buffer ```sysfs_show()``` is called to read the values back to the user.
 
-(https://www.kernel.org/pub/linux/kernel/people/mochel/doc/papers/ols-2005/mochel.pdf) 
-https://www.kernel.org/doc/Documentation/filesystems/sysfs.txt
-
 
 #### Writing registers
 Our kernel module should also be able to write values to specific registers. We do that with the following code:
@@ -144,7 +138,7 @@ Our kernel module should also be able to write values to specific registers. We 
 *(uint32_t*)regval = value;
 printk(KERN_INFO "Wrote: %u to address: %x", value, addr);
 ```
-Just like the reading part of our code the register address ```regval```is first translated to the physical adress. After that we write ```value``` wich is specified by the user to that register. After that we write this information to the kernel log 
+Just like the reading part of our code the register address ```regval```is first translated to the physical adress. After that we write ```value``` wich is specified by the user to that register. Next, we write this information to the kernel log 
 
 ### Testing the kernel module
 
@@ -189,6 +183,13 @@ Wrote: 1023 to address: 400a8014#
 # echo "r 400a8014 1" > /sys/kernel/es6/hw 
 Value of Register : 1023
 ```
+
+### References
+https://www.embedded.com/design/programming-languages-and-tools/4432746/Device-registers-in-C
+https://www.infradead.org/~mchehab/kernel_docs/unsorted/rtc.html
+https://www.kernel.org/doc/html/latest/driver-api/basics.html?highlight=kobject_create#c.kobject_create_and_add
+https://www.kernel.org/pub/linux/kernel/people/mochel/doc/papers/ols-2005/mochel.pdf
+https://www.kernel.org/doc/Documentation/filesystems/sysfs.txt
 
 
 
