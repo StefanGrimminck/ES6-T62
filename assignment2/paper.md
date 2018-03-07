@@ -120,7 +120,7 @@ for (i = 0; i < value; i++) {
 
 The following code is  is responsible for retrieving the register value. 
 ```c
-*(uint32_t*)regval
+*(volatile uint32_t*)regval
 ```
 Ofcourse the register (```regval```) is first translated from a virtual to a physical address before reading its values. This translation is done earlier in our code with the following line.
 ```regval = io_p2v(addr); ```
