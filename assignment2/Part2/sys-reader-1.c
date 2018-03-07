@@ -18,7 +18,7 @@
  * w 400a8014 3ff
  * 
  */
-#define LPC3250 0 /* Set this to 1 to build for LPC, 0 to build for x86 */
+#define LPC3250 1 /* Set this to 1 to build for LPC, 0 to build for x86 */
 
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -64,9 +64,10 @@ sysfs_store(struct device *dev,
     uint32_t addr = 0;
     uint32_t *regval = 0;
     int value = 0;
+    size_t buflen = 0;
     static char temp_buffer[sizeof(uint32_t)]; /* Used to concat the value of a register to the sys file */
     sscanf(buffer, "%c %x %x", &io, &addr, &value);
-    
+    memset(sysfs_buffer, 0, sysfs_max_data_size);
     //*regval = addr;
     #if LPC3250
         regval = io_p2v(addr);
@@ -77,15 +78,19 @@ sysfs_store(struct device *dev,
 	{
 	case 'r':	
 		/* Only read a certain amount of registers, to not let the /sys buffer overflow */
-        if(value > (sysfs_max_data_size / sizeof(uint32_t))){
-            value = (sysfs_max_data_size / sizeof(uint32_t));
-        }
+        //if(value > (sysfs_max_data_size / sizeof(uint32_t))){
+        //    value = (sysfs_max_data_size / sizeof(uint32_t));
+        //}
 
 		for (i = 0; i < value; i++)
 		{
       		printk(KERN_INFO "Value of Register : %u\n", *(uint32_t*)regval); /* print to the kernel log */
             sprintf(temp_buffer, "%u", *(uint32_t*)regval);
-            strcat(sysfs_buffer, temp_buffer);
+            buflen = strlen(sysfs_buffer);
+            if((sysfs_max_data_size - buflen) > (strlen(temp_buffer) + 1)){
+                strcat(sysfs_buffer, " ");
+                strcat(sysfs_buffer, temp_buffer);
+            }
             regval++;
 		}
 					
