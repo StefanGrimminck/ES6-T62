@@ -185,11 +185,16 @@ Value of Register : 1023
 ```
 
 ### References
-https://www.embedded.com/design/programming-languages-and-tools/4432746/Device-registers-in-C
-https://www.infradead.org/~mchehab/kernel_docs/unsorted/rtc.html
-https://www.kernel.org/doc/html/latest/driver-api/basics.html?highlight=kobject_create#c.kobject_create_and_add
-https://www.kernel.org/pub/linux/kernel/people/mochel/doc/papers/ols-2005/mochel.pdf
-https://www.kernel.org/doc/Documentation/filesystems/sysfs.txt
+Walls, C. (2014, July 27). Device registers in C. Retrieved March 6, 2018, from https://www.embedded.com/design/programming-languages-and-tools/4432746/Device-registers-in-C
+
+The kernel development community. Real Time Clock (RTC) Drivers for Linux. Retrieved March 6, 2018, from https://www.infradead.org/~mchehab/kernel_docs/unsorted/rtc.html 
+
+The kernel development community. Driver Basics. Retrieved March 6, 2018, from https://www.kernel.org/doc/html/latest/driver-api/basics.html?highlight=kobject_create#c.kobject_create_and_add
+
+Mochel, P. (2005). The sysfs Filesystem. Retrieved March 6, 2018, from https://www.kernel.org/pub/linux/kernel/people/mochel/doc/papers/ols-2005/mochel.pdf
+
+Mochel, P. (2011, August 16 sysfs - _The_ filesystem for exporting kernel objects. Retrieved March 6, 2018, from https://www.kernel.org/pub/linux/kernel/people/mochel/doc/papers/ols-2005/mochel.pdf
+
 
 
 
