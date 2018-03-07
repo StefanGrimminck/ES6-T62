@@ -1,7 +1,7 @@
-Peek and poke
+# Peek and poke
 Stefan Grimminck & Skip Geldens
-T62
-Part 1 
+T62
+## Part 1 
 
 We set out to make an application that could read registers from user-space. We wanted to see what the results were, because we believe that this is not possible. 
 
@@ -16,7 +16,7 @@ This program gives a Segmentation fault on the Lubuntu image, but gives out a se
 uint32_t* info = (uint32_t*)0x40024000;
 To 400240000 (so without 0x in front) we do get a segmentation fault. So the LPC3250 clearly has a MMU, because we are restricted when we try to read at this address. In the LPC datasheet there is also a short mention of the MMU, but that does not give a answer on why we can read from an address that isn’t ours. 
 
-Part 2
+## Part 2
 After we'd gathered the basic knowledge of kernel modules by read LKMPG we created a kernel module to read and write to the proc filesystem the correct way. 
 
 Before we started writing our module we first needed to know more about what a module is and how it is used in Linux. … .. ...
