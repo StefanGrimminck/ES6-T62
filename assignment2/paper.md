@@ -1,0 +1,132 @@
+# Peek and poke
+Stefan Grimminck & Skip Geldens
+T62
+## Part 1 
+
+We set out to make an application that could read registers from user-space. We wanted to see what the results were, because we believe that this is not possible. 
+
+https://www.embedded.com/design/programming-languages-and-tools/4432746/Device-registers-in-C
+https://www.infradead.org/~mchehab/kernel_docs/unsorted/rtc.html
+
+```c
+int main(){
+	uint32_t* info = (uint32_t*)0x40024000;
+	printf("the result is: %u \n", *info);
+	return 0;
+}
+
+/*
+ * Result from LPC: 3813867535  
+ * Result from Lubuntu: Segmentation fault
+ */
+```
+The program above is what we used to read the data on a register. The register that we need for the RTC on the LPC is: 0x40024000. This information was in the LPC3250 datasheet, on page 34. 
+
+This program gives a Segmentation fault on the Lubuntu image, but gives out a seemingly random number on the LPC. However, this number is fixed, even if we reboot the LPC. The reason that this is happening is that we do have some access to the registers that are outside of our address space. But if we change the address on this line:
+uint32_t* info = (uint32_t*)0x40024000;
+To 400240000 (so without 0x in front) we do get a segmentation fault. So the LPC3250 clearly has a MMU, because we are restricted when we try to read at this address. In the LPC datasheet there is also a short mention of the MMU, but that does not give a answer on why we can read from an address that isn’t ours. 
+
+## Part 2
+After we'd gathered the basic knowledge of kernel modules by read LKMPG we created a kernel module to read and write to the proc filesystem the correct way. 
+
+Before we started writing our module we first needed to know more about what a module is and how it is used in Linux. … .. ...
+< Basic understanding of kernel module structure >
+
+The basic structure of a kernel module is practically always the same, these are the things that should be in every module:
+
+-Includes:
+```c
+linux/module.h
+linux/kernel.h
+```
+
+-An initializing function
+	This runs when the module is inserted into the running system with insmod.
+-A cleanup function
+	This function runs when the module is removed from the running system with rmmod.
+
+There are some specific functions and macros you use when using the /sys filesystem, we will explain them here.
+```c
+sysfs_store()  (this can be any name, as long as you register it)
+```
+This function is called when a user writes something to the file you have defined and made in the /sys filesystem. So when a user or application wants to contact your kernel module, this is going to be done via the /sys filesystem in our case. There are also different ways of talking to the kernel, for example via the /proc filesystem or via /dev. 
+
+In this function the kernel module should handle the input of the user, and do something with it. In our case it reads or writes some user specified registers.
+```c
+sysfs_show() (this can be any name, as long as you register it)
+```
+This function will return something to the /sys file when a user wants to read from it. In our case it just prints a buffer that we filled in the sysfs_store function.
+
+```c
+static DEVICE_ATTR(hw, S_IWUGO | S_IRUGO, sysfs_show, sysfs_store);
+```
+This line of code above is a macro for sysfs, this populates a struct with the following parameters:
+-name
+-mode
+-the show function (sysfs_show in our case)
+-the store function (sysfs_store in our case)
+
+```c
+static struct attribute *attrs[] = {
+    &dev_attr_hw.attr,
+    NULL   /* need to NULL terminate the list of attributes */
+};
+static struct attribute_group attr_group = {
+    .attrs = attrs,
+};
+```
+
+This snippet shows a struct that contains multiple of the before mentioned device attributes. This is done so that one kernel module can have multiple files in the /sys filesystem. 
+```c
+    if (hello_obj == NULL)
+    {
+        printk (KERN_INFO "%s module failed to load: kobject_create_and_add failed\n", sysfs_file);
+        return -ENOMEM;
+    }
+
+    result = sysfs_create_group(hello_obj, &attr_group);
+    if (result != 0)
+    {
+        /* creating files failed, thus we must remove the created directory! */
+        printk (KERN_INFO "%s module failed to load: sysfs_create_group failed with result %d\n", sysfs_file, result);
+        kobject_put(hello_obj);
+        return -ENOMEM;
+    }
+```
+
+This code in the init function of the module eventually creates the files in the /sys filesystem. You can see two functions, the kobject_create_and_add() and sysfs_create_group(). 
+
+The kobject_create_and_add() function makes a kobject struct, and registers it with the sysfs. The name (first argument) is what gives us a directory in the sysfs where we can create different files in. 
+(https://www.kernel.org/doc/html/latest/driver-api/basics.html?highlight=kobject_create#c.kobject_create_and_add)
+
+
+The sysfs_create_group() function takes the kernel object we just created, and fills it the attr_group struct. This looks to be the same as using sysfs_create_file(), but for multiple files at once! 
+
+After we have initialised the sysfs the module can do its work!
+
+(https://www.kernel.org/pub/linux/kernel/people/mochel/doc/papers/ols-2005/mochel.pdf) 
+https://www.kernel.org/doc/Documentation/filesystems/sysfs.txt
+
+
+### testing the kernel module
+
+To test our kernel module we'll be reading the value of Up Counter of the Real Time Clock (RTC) using its
+address. The value of this register will increase every second.
+When reading this register 3 times we verified this feature. 
+
+```shell
+# echo "r 40024000 2" > /sys/kernel/es6/hw && cat /sys/kernel/es6/hw
+Value of Register : 2178304742
+Value of Register : 2136923088
+sysfile_read (/sys/kernel/es6/hw) called
+# echo "r 40024000 2" > /sys/kernel/es6/hw && cat /sys/kernel/es6/hw 
+Value of Register : 2178304746
+Value of Register : 2136923084
+sysfile_read (/sys/kernel/es6/hw) called
+# echo "r 40024000 2" > /sys/kernel/es6/hw && cat /sys/kernel/es6/hw 
+Value of Register : 2178304753
+Value of Register : 2136923077
+sysfile_read (/sys/kernel/es6/hw) called
+```
+
+
