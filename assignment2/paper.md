@@ -104,12 +104,34 @@ The sysfs_create_group() function takes the kernel object we just created, and f
 
 After we have initialised the sysfs the module can do its work!
 
+#### Reading registers
+
+First we implemented the functionality of reading to registers. This way we can confirm our code by reading the Up Counter from te RTC. We then can use this to verify the writing function.
+
+Reading regsiters is done by the following code:
+```c
+for (i = 0; i < value; i++) {
+    /* print to the kernel log */
+  printk(KERN_INFO "Value of Register : %u\n", * (uint32_t * ) regval);
+  sprintf(temp_buffer, "%u", * (uint32_t * ) regval);
+  buflen = strlen(sysfs_buffer);
+  
+  if ((sysfs_max_data_size - buflen) > (strlen(temp_buffer) + 1)) {
+    strcat(sysfs_buffer, " ");
+    strcat(sysfs_buffer, temp_buffer);
+  }
+  regval++;
+	}
+```
+
+
 (https://www.kernel.org/pub/linux/kernel/people/mochel/doc/papers/ols-2005/mochel.pdf) 
 https://www.kernel.org/doc/Documentation/filesystems/sysfs.txt
 
 
 ### Testing the kernel module
 
+#### Reading registers
 To test our kernel module we'll be reading the value of Up Counter of the Real Time Clock (RTC) using its
 address. Using the LPC3250 manual we found the register for the Up Counter to be 0x40024000.
 The value of this register will increase every second, wich we'll use to verify that we are reading the correct registers .
@@ -132,5 +154,24 @@ Value of Register : 2178304753
 Value of Register : 2136923077
 sysfile_read (/sys/kernel/es6/hw) called
 ```
+
+#### Writing to registers
+
+Ofcourse testing wouldn't cover 100% of our code if we didn't test writing to modules.
+For testing we used register 0x400a8014 (WHAT IS THIS REGISTER).
+
+First we read the value of the register which is 110, than we write a value of 0xff3 (1023) to it and confirm the writing action by reading the value of the register again.
+
+```c
+# insmod /usr/bin/hoi/sys-reader-1.ko 
+/sys/kernel/es6/hw created
+# echo "r 400a8014 1" > /sys/kernel/es6/hw 
+Value of Register : 110
+# echo "w 400a8014 3ff" > /sys/kernel/es6/hw 
+Wrote: 1023 to address: 400a8014# 
+# echo "r 400a8014 1" > /sys/kernel/es6/hw 
+Value of Register : 1023
+```
+
 
 
