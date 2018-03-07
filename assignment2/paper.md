@@ -97,7 +97,7 @@ The ```kobject_create_and_add()``` function makes a kobject struct, and register
 (https://www.kernel.org/doc/html/latest/driver-api/basics.html?highlight=kobject_create#c.kobject_create_and_add)
 
 
-The ```sysfs_create_group()``` function takes the kernel object we just created, and fills it the attr_group struct. This looks to be the same as using sysfs_create_file(), but for multiple files at once! 
+The ```sysfs_create_group()``` function takes the kernel object we just created, and fills it the attr_group struct. This looks to be the same as using ```sysfs_create_file()```, but for multiple files at once! 
 
 After we have initialised the sysfs the module can do its work!
 
