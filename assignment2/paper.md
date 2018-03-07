@@ -138,7 +138,7 @@ Our kernel module should also be able to write values to specific registers. We 
 *(uint32_t*)regval = value;
 printk(KERN_INFO "Wrote: %u to address: %x", value, addr);
 ```
-Just like the reading part of our code the register address ```regval```is first translated to the physical adress. After that we write ```value``` wich is specified by the user to that register. Next, we write this information to the kernel log 
+Just like the reading part of our code, the register address ```regval```is first translated to the physical adress. After that we write ```value``` wich is specified by the user to that register. Next, we write this information to the kernel log 
 
 ### Testing the kernel module
 
@@ -168,10 +168,10 @@ sysfile_read (/sys/kernel/es6/hw) called
 
 #### Writing to registers
 
-Ofcourse testing wouldn't cover 100% of our code if we didn't test writing to modules.
-For testing we used register ```0x400a8014```.
+Ofcourse testing wouldn't be done, if we didn't test writing to registers.
+We used register ```0x400a8014``` to write our values to.
 
-First we read the value of the register which is 110, than we write a value of 0xff3 (1023) to it and confirm the writing action by reading the value of the register again.
+First we read the value of the register which is 110, than we wrote a value of 0xff3 (1023) to it and confirmed the writing action by reading the value of the register again.
 
 ```c
 # insmod /usr/bin/hoi/sys-reader-1.ko 
