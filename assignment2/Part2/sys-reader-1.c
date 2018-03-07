@@ -84,7 +84,7 @@ sysfs_store(struct device *dev,
 
 		for (i = 0; i < value; i++)
 		{
-      		printk(KERN_INFO "Value of Register : %u\n", *(uint32_t*)regval); /* print to the kernel log */
+      		printk(KERN_INFO "Value of Register : %u\n", *(volatile uint32_t*)regval); /* print to the kernel log */
             sprintf(temp_buffer, "%u", *(uint32_t*)regval);
             buflen = strlen(sysfs_buffer);
             if((sysfs_max_data_size - buflen) > (strlen(temp_buffer) + 1)){
