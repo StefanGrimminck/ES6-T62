@@ -122,6 +122,8 @@ The following code is  is responsible for retrieving the register value.
 ```c
 *(volatile uint32_t*)regval
 ```
+regval is a casted pointer to a unsigned 32-bit integer. After this operation, the result wil the actual number stored in the address pointed to by regval. Volatile is used to make sure the register value isn't baed on the compiler's optimalisation or the use of an old copy of the variable.
+
 Ofcourse the register (```regval```) is first translated from a virtual to a physical address before reading its values. This translation is done earlier in our code with the following line.
 ```regval = io_p2v(addr); ```
 
