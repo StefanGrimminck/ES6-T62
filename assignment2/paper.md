@@ -100,7 +100,7 @@ After we have initialised the sysfs the module can do its work!
 
 #### Reading registers
 
-First we implemented the functionality for reading the registers. This way we can confirm our code by reading the Up Counter from te RTC. Wen that's verified we can use this to verify the writing function.
+First we implemented the functionality for reading the registers. This way we can confirm our code by reading the Up Counter from te RTC. When that's verified we can use this to verify the writing function.
 
 Reading registers is done by the following code:
 ```c
@@ -122,10 +122,10 @@ The following code is  is responsible for retrieving the register value.
 ```c
 *(uint32_t*)regval
 ```
-Ofcourse the register is first translated from a virtual to a physical address before reading its values. This translation is done earlier in our code with the following line.
+Ofcourse the register (```regval```) is first translated from a virtual to a physical address before reading its values. This translation is done earlier in our code with the following line.
 ```regval = io_p2v(addr); ```
 
-After the translation is made we loop trough the for-loop for the amount of registers we want to read. The register is read which is specified by the user, than the upcomming onces if desired. This is done by ```regval++ ``` which moves the pointer up by one register so that we read the succeeding one in the next cycle of the loop.
+After the translation is made we loop through the for-loop for the amount of registers we want to read. First, the register that is specified by the user is read, than the upcomming onces if desired. This is done by ```regval++ ``` which moves the pointer up by one register so that we read the succeeding one in the next cycle of the loop.
 
 We check that the amount of data we read is smaller than or equal to our buffer length, this is done to prevent writing in memory that isn't ours. If the ```temp_buffer ``` is bigger than our ```sysfs_buffer ``` we won't write to the ```sysfs_buffer ``` buffer, otherwise we do.
 
