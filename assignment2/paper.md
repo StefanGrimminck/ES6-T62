@@ -114,7 +114,7 @@ To test our kernel module we'll be reading the value of Up Counter of the Real T
 address. The value of this register will increase every second.
 When reading this register 3 times we verified this feature. 
 
-```shell
+```c
 # echo "r 40024000 2" > /sys/kernel/es6/hw && cat /sys/kernel/es6/hw
 Value of Register : 2178304742
 Value of Register : 2136923088
