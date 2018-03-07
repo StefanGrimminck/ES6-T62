@@ -23,14 +23,11 @@ int main(){
 The program above is what we used to read the data on a register. The register that we need for the RTC on the LPC is: 0x40024000. This information was in the LPC3250 datasheet, on page 34. 
 
 This program gives a Segmentation fault on the Lubuntu image, but gives out a seemingly random number on the LPC. However, this number is fixed, even if we reboot the LPC. The reason that this is happening is that we do have some access to the registers that are outside of our address space. But if we change the address on this line:
-uint32_t* info = (uint32_t*)0x40024000;
+```uint32_t* info = (uint32_t*)0x40024000;```
 To 400240000 (so without 0x in front) we do get a segmentation fault. So the LPC3250 clearly has a MMU, because we are restricted when we try to read at this address. In the LPC datasheet there is also a short mention of the MMU, but that does not give a answer on why we can read from an address that isn’t ours. 
 
 ## Part 2
 After we'd gathered the basic knowledge of kernel modules by read LKMPG we created a kernel module to read and write to the proc filesystem the correct way. 
-
-Before we started writing our module we first needed to know more about what a module is and how it is used in Linux. … .. ...
-< Basic understanding of kernel module structure >
 
 The basic structure of a kernel module is practically always the same, these are the things that should be in every module:
 
@@ -94,13 +91,13 @@ This snippet shows a struct that contains multiple of the before mentioned devic
     }
 ```
 
-This code in the init function of the module eventually creates the files in the /sys filesystem. You can see two functions, the kobject_create_and_add() and sysfs_create_group(). 
+This code in the init function of the module eventually creates the files in the /sys filesystem. You can see two functions, the ```kobject_create_and_add()``` and ```sysfs_create_group()```. 
 
-The kobject_create_and_add() function makes a kobject struct, and registers it with the sysfs. The name (first argument) is what gives us a directory in the sysfs where we can create different files in. 
+The ```kobject_create_and_add()``` function makes a kobject struct, and registers it with the sysfs. The name (first argument) is what gives us a directory in the sysfs where we can create different files in. 
 (https://www.kernel.org/doc/html/latest/driver-api/basics.html?highlight=kobject_create#c.kobject_create_and_add)
 
 
-The sysfs_create_group() function takes the kernel object we just created, and fills it the attr_group struct. This looks to be the same as using sysfs_create_file(), but for multiple files at once! 
+The ```sysfs_create_group()``` function takes the kernel object we just created, and fills it the attr_group struct. This looks to be the same as using sysfs_create_file(), but for multiple files at once! 
 
 After we have initialised the sysfs the module can do its work!
 
