@@ -124,10 +124,30 @@ for (i = 0; i < value; i++) {
 	}
 ```
 
+The following code is  is responsible for retrieving the register value. 
+```c
+*(uint32_t*)regval
+```
+Ofcourse the register is first translated from a virtual to a physical address before reading its values. This translation is done earlier in our code with the following line.
+```regval = io_p2v(addr); ```
+
+After the translation is made we loop trough the for-loop for the amount of registers we want to read. The register is read which is specified by the user, than the upcomming onces if desired. This is done by ```regval++ ``` which moves the pointer up by one register so that we read the succeeding one in the next cycle of the loop.
+
+We check that the amount of data we read is smaller than or equal to our buffer length, this is done to prevent writing in memory that isn't ours. If the ```temp_buffer ``` is bigger than our ```sysfs_buffer ``` we won't write to the ```sysfs_buffer ``` buffer, otherwise we do.
+
+After writing to the buffer ```sysfs_show()``` is called to read the values back to the user.
 
 (https://www.kernel.org/pub/linux/kernel/people/mochel/doc/papers/ols-2005/mochel.pdf) 
 https://www.kernel.org/doc/Documentation/filesystems/sysfs.txt
 
+
+#### Writing registers
+Our kernel module should also be able to write values to specific registers. We do that with the following code:
+```c
+*(uint32_t*)regval = value;
+printk(KERN_INFO "Wrote: %u to address: %x", value, addr);
+```
+Just like the reading part of our code the register address ```regval```is first translated to the physical adress. After that we write ```value``` wich is specified by the user to that register. After that we write this information to the kernel log 
 
 ### Testing the kernel module
 
