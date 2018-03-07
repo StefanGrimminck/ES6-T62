@@ -108,7 +108,7 @@ After we have initialised the sysfs the module can do its work!
 https://www.kernel.org/doc/Documentation/filesystems/sysfs.txt
 
 
-### testing the kernel module
+### Testing the kernel module
 
 To test our kernel module we'll be reading the value of Up Counter of the Real Time Clock (RTC) using its
 address. Using the LPC3250 manual we found the register for the Up Counter to be 0x40024000.
