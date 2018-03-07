@@ -17,11 +17,11 @@ int main(){
  * Result from Lubuntu: Segmentation fault
  */
 ```
-The program above is what we used to read the data on a register. The register that we need for the RTC on the LPC is: 0x40024000. This information was in the LPC3250 datasheet, on page 34. 
+The program above is what we used to read the data on a register. The register that we need for the RTC on the LPC is: ```0x40024000```. This information was in the LPC3250 datasheet, on page 34. 
 
 This program gives a Segmentation fault on the Lubuntu image, but gives out a seemingly random number on the LPC. However, this number is fixed, even if we reboot the LPC. The reason that this is happening is that we do have some access to the registers that are outside of our address space. But if we change the address on this line:
 ```uint32_t* info = (uint32_t*)0x40024000;```
-To 400240000 (so without 0x in front) we do get a segmentation fault. So the LPC3250 clearly has a MMU, because we are restricted when we try to read at this address. In the LPC datasheet there is also a short mention of the MMU, but that does not give a answer on why we can read from an address that isn’t ours. 
+To ```400240000``` (so without 0x in front) we do get a segmentation fault. So the LPC3250 clearly has a MMU, because we are restricted when we try to read at this address. In the LPC datasheet there is also a short mention of the MMU, but that does not give a answer on why we can read from an address that isn’t ours. 
 
 ## Part 2
 After we'd gathered the basic knowledge of kernel modules by read LKMPG we created a kernel module to read and write to the proc filesystem the correct way. 
@@ -144,7 +144,7 @@ Just like the reading part of our code the register address ```regval```is first
 
 #### Reading registers
 To test our kernel module we'll be reading the value of Up Counter of the Real Time Clock (RTC) using its
-address. Using the LPC3250 manual we found the register for the Up Counter to be 0x40024000.
+address. Using the LPC3250 manual we found the register for the Up Counter to be ```0x40024000```.
 The value of this register will increase every second, wich we'll use to verify that we are reading the correct registers .
 When reading this register 3 times we verified this feature as seen below. 
 
@@ -169,7 +169,7 @@ sysfile_read (/sys/kernel/es6/hw) called
 #### Writing to registers
 
 Ofcourse testing wouldn't cover 100% of our code if we didn't test writing to modules.
-For testing we used register 0x400a8014 (WHAT IS THIS REGISTER).
+For testing we used register ```0x400a8014```.
 
 First we read the value of the register which is 110, than we write a value of 0xff3 (1023) to it and confirm the writing action by reading the value of the register again.
 
