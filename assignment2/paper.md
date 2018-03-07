@@ -116,7 +116,7 @@ The value of this register will increase every second, wich we'll use to verify 
 When reading this register 3 times we verified this feature as seen below. 
 
 We also read two registers to check if this functionality worked. 
-In contrast to the Up Counter this value decreases every second.
+In contrast to the Up Counter this value decreases every second. By executing this command we can also check if the reading from or writing to our buffer works, which it does.
 
 ```c
 # echo "r 40024000 2" > /sys/kernel/es6/hw && cat /sys/kernel/es6/hw
