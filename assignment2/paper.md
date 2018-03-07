@@ -107,3 +107,26 @@ After we have initialised the sysfs the module can do its work!
 (https://www.kernel.org/pub/linux/kernel/people/mochel/doc/papers/ols-2005/mochel.pdf) 
 https://www.kernel.org/doc/Documentation/filesystems/sysfs.txt
 
+
+### testing the kernel module
+
+To test our kernel module we'll be reading the value of Up Counter of the Real Time Clock (RTC) using its
+address. The value of this register will increase every second.
+When reading this register 3 times we verified this feature. 
+
+```
+# echo "r 40024000 2" > /sys/kernel/es6/hw && cat /sys/kernel/es6/hw 
+Value of Register : 2178304742
+Value of Register : 2136923088
+sysfile_read (/sys/kernel/es6/hw) called
+# echo "r 40024000 2" > /sys/kernel/es6/hw && cat /sys/kernel/es6/hw 
+Value of Register : 2178304746
+Value of Register : 2136923084
+sysfile_read (/sys/kernel/es6/hw) called
+# echo "r 40024000 2" > /sys/kernel/es6/hw && cat /sys/kernel/es6/hw 
+Value of Register : 2178304753
+Value of Register : 2136923077
+sysfile_read (/sys/kernel/es6/hw) called
+```
+
+
