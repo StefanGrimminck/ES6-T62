@@ -124,7 +124,7 @@ The following code is  is responsible for retrieving the register value.
 ```
 regval is a casted pointer to a unsigned 32-bit integer. After this operation, the result wil the actual number stored in the address pointed to by regval. Volatile is used to make sure the register value isn't baed on the compiler's optimalisation or the use of an old copy of the variable.
 
-Ofcourse the register (```regval```) is first translated from a virtual to a physical address before reading its values. This translation is done earlier in our code with the following line.
+Ofcourse the register (```regval```) is first translated from a virtual to a virtual address before reading its values. This translation is done earlier in our code with the following line.
 ```regval = io_p2v(addr); ```
 
 After the translation is made we loop through the for-loop for the amount of registers we want to read. First, the register that is specified by the user is read, than the upcomming onces if desired. This is done by ```regval++ ``` which moves the pointer up by one register so that we read the succeeding one in the next cycle of the loop.
@@ -140,7 +140,7 @@ Our kernel module should also be able to write values to specific registers. We 
 *(uint32_t*)regval = value;
 printk(KERN_INFO "Wrote: %u to address: %x", value, addr);
 ```
-Just like the reading part of our code, the register address ```regval```is first translated to the physical adress. After that we write ```value``` wich is specified by the user to that register. Next, we write this information to the kernel log 
+Just like the reading part of our code, the register address ```regval```is first translated to the virtual address. After that we write ```value``` wich is specified by the user to that register. Next, we write this information to the kernel log 
 
 ### Testing the kernel module
 
