@@ -77,11 +77,6 @@ sysfs_store(struct device *dev,
 	switch(io)
 	{
 	case 'r':	
-		/* Only read a certain amount of registers, to not let the /sys buffer overflow */
-        //if(value > (sysfs_max_data_size / sizeof(uint32_t))){
-        //    value = (sysfs_max_data_size / sizeof(uint32_t));
-        //}
-
 		for (i = 0; i < value; i++)
 		{
       		printk(KERN_INFO "Value of Register : %u\n", *(volatile uint32_t*)regaddr); /* print to the kernel log */
