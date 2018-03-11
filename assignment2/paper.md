@@ -24,7 +24,7 @@ This program gives a Segmentation fault on the Lubuntu image, but gives out a se
 To ```400240000``` (so without 0x in front) we do get a segmentation fault. So the LPC3250 clearly has a MMU, because we are restricted when we try to read at this address. In the LPC datasheet there is also a short mention of the MMU, but that does not give a answer on why we can read from an address that isn’t ours. 
 
 ## Part 2
-After we'd gathered the basic knowledge of kernel modules by read LKMPG we created a kernel module to read and write to the proc filesystem the correct way. 
+After we'd gathered the basic knowledge of kernel modules by reading LKMPG we created a kernel module to read and write to the /sys filesystem the correct way. 
 
 The basic structure of a kernel module is practically always the same, these are the things that should be in every module:
 
@@ -100,7 +100,7 @@ After we have initialised the sysfs the module can do its work!
 
 #### Reading registers
 
-First we implemented the functionality for reading the registers. This way we can confirm our code by reading the Up Counter from te RTC. When that's verified we can use this to verify the writing function.
+First we implemented the functionality for reading the registers. This way we can confirm our code by reading the Up Counter from te RTC. When that's verified we can use this to check if our writing function works correct.
 
 Reading registers is done by the following code:
 ```c
@@ -118,12 +118,12 @@ for (i = 0; i < value; i++) {
 	}
 ```
 
-The following code is  is responsible for retrieving the register value. 
+The following code is  is responsible for retrieving the register value and printing it to the kernel log. 
 ```c
 printk(KERN_INFO "Value of Register : %u\n", *(volatile uint32_t*)regaddr); /* print to the kernel log */
 ```
 
-regaddr is a casted pointer to a unsigned 32-bit integer. After this operation, the result wil the actual number stored in the address pointed to by regaddr. Volatile is used to make sure the register value isn't baed on the compiler's optimalisation or the use of an old copy of the variable.
+regaddr is a casted pointer to a unsigned 32-bit integer. After this operation, the result wil the actual value stored in the address pointed to by regaddr. Volatile is used to make sure the register value isn't based on the compiler's optimalisation or the use of an old copy of the variable.
 
 The register address (```regaddr```) is first translated from a physical to a virtual address before reading its values. This translation is done earlier in our code with the following line.
 ```c
@@ -134,7 +134,7 @@ After the translation is made we loop through the for-loop for the amount of reg
 
 We check that the amount of data we read is smaller than or equal to our buffer length, this is done to prevent writing in memory that isn't ours. If the ```temp_buffer ``` is bigger than our ```sysfs_buffer ``` we won't write to the ```sysfs_buffer ``` buffer, otherwise we do.
 
-After writing to the buffer ```sysfs_show()``` is called to log the change.
+After writing to the buffer ```sysfs_show()``` is called to read the buffer and display its contents to the user.
 
 
 #### Writing registers
@@ -154,7 +154,7 @@ The value of this register will increase every second, wich we'll use to verify 
 When reading this register 3 times we verified this feature as seen below. 
 
 We also read two registers to check if this functionality worked. 
-In contrast to the Up Counter this value decreases every second. By executing this command we can also check if the reading from or writing to our buffer works, which it does.
+In contrast to the Up Counter the value of the second buffer decreases every second. By executing this command we can also check if the reading from or writing to our buffer works, which it does.
 
 ```c
 # echo "r 40024000 2" > /sys/kernel/es6/hw && cat /sys/kernel/es6/hw
