@@ -127,7 +127,7 @@ regaddr is a casted pointer to a unsigned 32-bit integer. After this operation, 
 
 The register address (```regaddr```) is first translated from a physical to a virtual address before reading its values. This translation is done earlier in our code with the following line.
 ```c
-regaddr = p2v(addr);
+regaddr = io_p2v(addr);
 ```
 
 After the translation is made we loop through the for-loop for the amount of registers we want to read. First, the register that is specified by the user is read, than the upcomming onces if desired. This is done by ```regaddr++ ``` which moves the pointer up by one register so that we read the succeeding one in the next cycle of the loop.
