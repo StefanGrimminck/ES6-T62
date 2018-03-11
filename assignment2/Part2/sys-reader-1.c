@@ -62,15 +62,15 @@ sysfs_store(struct device *dev,
     char io = 'r';
     int i = 0;
     uint32_t addr = 0;
-    uint32_t *regval = 0;
+    uint32_t *regaddr = 0;
     int value = 0;
     size_t buflen = 0;
     static char temp_buffer[sizeof(uint32_t)]; /* Used to concat the value of a register to the sys file */
     sscanf(buffer, "%c %x %x", &io, &addr, &value);
     memset(sysfs_buffer, 0, sysfs_max_data_size);
-    //*regval = addr;
+    //*regaddr = addr;
     #if LPC3250
-        regval = io_p2v(addr);
+        regaddr = io_p2v(addr);
     #endif
 	
 	
@@ -84,19 +84,19 @@ sysfs_store(struct device *dev,
 
 		for (i = 0; i < value; i++)
 		{
-      		printk(KERN_INFO "Value of Register : %u\n", *(volatile uint32_t*)regval); /* print to the kernel log */
-            sprintf(temp_buffer, "%u", *(uint32_t*)regval);
+      		printk(KERN_INFO "Value of Register : %u\n", *(volatile uint32_t*)regaddr); /* print to the kernel log */
+            sprintf(temp_buffer, "%u", *(uint32_t*)regaddr);
             buflen = strlen(sysfs_buffer);
             if((sysfs_max_data_size - buflen) > (strlen(temp_buffer) + 1)){
                 strcat(sysfs_buffer, " ");
                 strcat(sysfs_buffer, temp_buffer);
             }
-            regval++;
+            regaddr++;
 		}
 					
 		break;
 	case 'w':
-		*(uint32_t*)regval = value;
+		*(uint32_t*)regaddr = value;
         printk(KERN_INFO "Wrote: %u to address: %x", value, addr);
 		break;
 	default:	
