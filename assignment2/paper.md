@@ -200,6 +200,9 @@ Mochel, P. (2005). The sysfs Filesystem. Retrieved March 6, 2018, from https://w
 
 Mochel, P. (2011, August 16 sysfs - _The_ filesystem for exporting kernel objects. Retrieved March 6, 2018, from https://www.kernel.org/pub/linux/kernel/people/mochel/doc/papers/ols-2005/mochel.pdf
 
+The Linux Kernel Programming Guide, visited on March 6,2018, from
+https://fhict.instructure.com/courses/5839/pages/lkmpg-6-sysfs?module_item_id=219188
+
 
 
 
