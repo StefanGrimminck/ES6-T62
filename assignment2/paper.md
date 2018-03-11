@@ -106,28 +106,31 @@ Reading registers is done by the following code:
 ```c
 for (i = 0; i < value; i++) {
     /* print to the kernel log */
-  printk(KERN_INFO "Value of Register : %u\n", * (uint32_t * ) regval);
-  sprintf(temp_buffer, "%u", * (uint32_t * ) regval);
+  printk(KERN_INFO "Value of Register : %u\n", * (uint32_t * ) regaddr);
+  sprintf(temp_buffer, "%u", * (uint32_t * ) regaddr);
   buflen = strlen(sysfs_buffer);
   
   if ((sysfs_max_data_size - buflen) > (strlen(temp_buffer) + 1)) {
     strcat(sysfs_buffer, " ");
     strcat(sysfs_buffer, temp_buffer);
   }
-  regval++;
+  regaddr++;
 	}
 ```
 
 The following code is  is responsible for retrieving the register value. 
 ```c
-*(volatile uint32_t*)regval
+printk(KERN_INFO "Value of Register : %u\n", *(volatile uint32_t*)regaddr); /* print to the kernel log */
 ```
-regval is a casted pointer to a unsigned 32-bit integer. After this operation, the result wil the actual number stored in the address pointed to by regval. Volatile is used to make sure the register value isn't baed on the compiler's optimalisation or the use of an old copy of the variable.
 
-Ofcourse the register (```regval```) is first translated from a virtual to a virtual address before reading its values. This translation is done earlier in our code with the following line.
-```printk(KERN_INFO "Value of Register : %u\n", *(volatile uint32_t*)regaddr); /* print to the kernel log */ ```
+regaddr is a casted pointer to a unsigned 32-bit integer. After this operation, the result wil the actual number stored in the address pointed to by regaddr. Volatile is used to make sure the register value isn't baed on the compiler's optimalisation or the use of an old copy of the variable.
 
-After the translation is made we loop through the for-loop for the amount of registers we want to read. First, the register that is specified by the user is read, than the upcomming onces if desired. This is done by ```regval++ ``` which moves the pointer up by one register so that we read the succeeding one in the next cycle of the loop.
+The register address (```regaddr```) is first translated from a physical to a virtual address before reading its values. This translation is done earlier in our code with the following line.
+```c
+regaddr = p2v(addr);
+```
+
+After the translation is made we loop through the for-loop for the amount of registers we want to read. First, the register that is specified by the user is read, than the upcomming onces if desired. This is done by ```regaddr++ ``` which moves the pointer up by one register so that we read the succeeding one in the next cycle of the loop.
 
 We check that the amount of data we read is smaller than or equal to our buffer length, this is done to prevent writing in memory that isn't ours. If the ```temp_buffer ``` is bigger than our ```sysfs_buffer ``` we won't write to the ```sysfs_buffer ``` buffer, otherwise we do.
 
@@ -137,10 +140,10 @@ After writing to the buffer ```sysfs_show()``` is called to log the change.
 #### Writing registers
 Our kernel module should also be able to write values to specific registers. We do that with the following code:
 ```c
-*(uint32_t*)regval = value;
+*(uint32_t*)regaddr = value;
 printk(KERN_INFO "Wrote: %u to address: %x", value, addr);
 ```
-Just like the reading part of our code, the register address ```regval```is first translated to the virtual address. After that we write ```value``` wich is specified by the user to that register. Next, we write this information to the kernel log 
+Just like the reading part of our code, the register address ```regaddr```is first translated to the virtual address. After that we write ```value``` wich is specified by the user to that register. Next, we write this information to the kernel log 
 
 ### Testing the kernel module
 
