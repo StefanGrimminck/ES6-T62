@@ -125,7 +125,7 @@ The following code is  is responsible for retrieving the register value.
 regval is a casted pointer to a unsigned 32-bit integer. After this operation, the result wil the actual number stored in the address pointed to by regval. Volatile is used to make sure the register value isn't baed on the compiler's optimalisation or the use of an old copy of the variable.
 
 Ofcourse the register (```regval```) is first translated from a virtual to a virtual address before reading its values. This translation is done earlier in our code with the following line.
-```regval = io_p2v(addr); ```
+```printk(KERN_INFO "Value of Register : %u\n", *(volatile uint32_t*)regaddr); /* print to the kernel log */ ```
 
 After the translation is made we loop through the for-loop for the amount of registers we want to read. First, the register that is specified by the user is read, than the upcomming onces if desired. This is done by ```regval++ ``` which moves the pointer up by one register so that we read the succeeding one in the next cycle of the loop.
 
