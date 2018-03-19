@@ -4,7 +4,7 @@ CFLAGS=
 
 MAIN_SOURCES=main.c
 
-GCC=gcc
+GCC=arm-linux-gcc
 
 all: $(PROJECT_NAME)
 
