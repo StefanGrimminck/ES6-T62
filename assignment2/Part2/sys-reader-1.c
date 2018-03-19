@@ -18,21 +18,18 @@
  * w 400a8014 3ff
  * 
  */
-#define LPC3250 1 /* Set this to 1 to build for LPC, 0 to build for x86 */
 
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/kobject.h>
 #include <linux/device.h>
-#if LPC3250
 #include <mach/hardware.h>
-#endif
 
 #define sysfs_dir  "es6"
 #define sysfs_file "hw"
 
 #define sysfs_max_data_size 1024 /* due to limitations of sysfs, you mustn't go above PAGE_SIZE, 1k is already a *lot* of information for sysfs! */
-static char sysfs_buffer[sysfs_max_data_size+1] = ""; /* an extra byte for the '\0' terminator */
+static char sysfs_buffer[sysfs_max_data_size+1]; /* an extra byte for the '\0' terminator */
 
 /*
  * This function is called when a user wants to read the sys file
@@ -59,7 +56,7 @@ sysfs_store(struct device *dev,
             const char *buffer,
             size_t count)
 {   
-    char io = 'r';
+    char io = '';
     int i = 0;
     uint32_t addr = 0;
     uint32_t *regaddr = 0;
@@ -68,10 +65,7 @@ sysfs_store(struct device *dev,
     static char temp_buffer[sizeof(uint32_t)]; /* Used to concat the value of a register to the sys file */
     sscanf(buffer, "%c %x %x", &io, &addr, &value);
     memset(sysfs_buffer, 0, sysfs_max_data_size);
-    //*regaddr = addr;
-    #if LPC3250
-        regaddr = io_p2v(addr);
-    #endif
+    regaddr = io_p2v(addr);
 	
 	
 	switch(io)
@@ -96,6 +90,7 @@ sysfs_store(struct device *dev,
 		break;
 	default:	
 		printk(KERN_INFO "Wrong input parameters");
+        return -EINVAL;
 		break;
 		
 	}

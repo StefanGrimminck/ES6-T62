@@ -28,37 +28,42 @@ After we'd gathered the basic knowledge of kernel modules by reading LKMPG we cr
 
 The basic structure of a kernel module is practically always the same, these are the things that should be in every module:
 
--Includes:
+####Includes
+
 ```c
 linux/module.h
 linux/kernel.h
 ```
 
--An initializing function
-	This runs when the module is inserted into the running system with insmod.
--A cleanup function
-	This function runs when the module is removed from the running system with rmmod.
+####An initializing function
 
-There are some specific functions and macros you use when using the /sys filesystem, we will explain them here.
-```c
-sysfs_store()  (this can be any name, as long as you register it)
-```
+This runs when the module is inserted into the running system with insmod.
+	
+####A cleanup function
+
+This function runs when the module is removed from the running system with rmmod.
+
+There are some specific functions and macros you use when using the /sys filesystem, we will explain them here
+
+####sysfs_store()  (this can be any name, as long as you register it)
+
 This function is called when a user writes something to the file you have defined and made in the /sys filesystem. So when a user or application wants to contact your kernel module, this is going to be done via the /sys filesystem in our case. There are also different ways of talking to the kernel, for example via the /proc filesystem or via /dev. 
 
 In this function the kernel module should handle the input of the user, and do something with it. In our case it reads or writes some user specified registers.
-```c
-sysfs_show() (this can be any name, as long as you register it)
-```
+
+####sysfs_show() (this can be any name, as long as you register it)
+
 This function will return something to the /sys file when a user wants to read from it. In our case it just prints a buffer that we filled in the sysfs_store function.
 
 ```c
 static DEVICE_ATTR(hw, S_IWUGO | S_IRUGO, sysfs_show, sysfs_store);
 ```
 This line of code above is a macro for sysfs, this populates a struct with the following parameters:
--name
--mode
--the show function (sysfs_show in our case)
--the store function (sysfs_store in our case)
+
+- name
+- mode
+- the show function (sysfs_show in our case)
+- the store function (sysfs_store in our case)
 
 ```c
 static struct attribute *attrs[] = {
@@ -71,10 +76,13 @@ static struct attribute_group attr_group = {
 ```
 
 This snippet shows a struct that contains multiple of the before mentioned device attributes. This is done so that one kernel module can have multiple files in the /sys filesystem. 
+
 ```c
     if (hello_obj == NULL)
     {
-        printk (KERN_INFO "%s module failed to load: kobject_create_and_add failed\n", sysfs_file);
+        printk (KERN_INFO 
+        "%s module failed to load: kobject_create_and_add failed\n", 
+        sysfs_file);
         return -ENOMEM;
     }
 
@@ -82,19 +90,21 @@ This snippet shows a struct that contains multiple of the before mentioned devic
     if (result != 0)
     {
         /* creating files failed, thus we must remove the created directory! */
-        printk (KERN_INFO "%s module failed to load: sysfs_create_group failed with result %d\n", sysfs_file, result);
+        printk (KERN_INFO 
+        "%s module failed to load: sysfs_create_group failed with result %d\n", 
+        sysfs_file, result);
         kobject_put(hello_obj);
         return -ENOMEM;
     }
 ```
 
-This code in the init function of the module eventually creates the files in the /sys filesystem. You can see two functions, the ```kobject_create_and_add()``` and ```sysfs_create_group()```. 
+This code in the init function of the module eventually creates the files in the /sys filesystem. You can see two functions, the `kobject_create_and_add()` and `sysfs_create_group()`. 
 
-The ```kobject_create_and_add()``` function makes a kobject struct, and registers it with the sysfs. The name (first argument) is what gives us a directory in the sysfs where we can create different files in. 
+The `kobject_create_and_add()` function makes a kobject struct, and registers it with the sysfs. The name (first argument) is what gives us a directory in the sysfs where we can create different files in. 
 
 
 
-The ```sysfs_create_group()``` function takes the kernel object we just created, and fills it the attr_group struct. This looks to be the same as using ```sysfs_create_file()```, but for multiple files at once! 
+The `sysfs_create_group()` function takes the kernel object we just created, and fills it the attr_group struct. This looks to be the same as using `sysfs_create_file()`, but for multiple files at once! 
 
 After we have initialised the sysfs the module can do its work!
 
@@ -103,6 +113,7 @@ After we have initialised the sysfs the module can do its work!
 First we implemented the functionality for reading the registers. This way we can confirm our code by reading the Up Counter from te RTC. When that's verified we can use this to check if our writing function works correct.
 
 Reading registers is done by the following code:
+
 ```c
 for (i = 0; i < value; i++) {
     /* print to the kernel log */
@@ -118,39 +129,44 @@ for (i = 0; i < value; i++) {
 	}
 ```
 
-The following code is  is responsible for retrieving the register value and printing it to the kernel log. 
+The following code is  is responsible for retrieving the register value and printing it to the kernel log.
+ 
 ```c
-printk(KERN_INFO "Value of Register : %u\n", *(volatile uint32_t*)regaddr); /* print to the kernel log */
+printk(KERN_INFO "Value of Register : %u\n",
+ *(volatile uint32_t*)regaddr); /* print to the kernel log */
 ```
 
 regaddr is a casted pointer to a unsigned 32-bit integer. After this operation, the result wil the actual value stored in the address pointed to by regaddr. Volatile is used to make sure the register value isn't based on the compiler's optimalisation or the use of an old copy of the variable.
 
 The register address (```regaddr```) is first translated from a physical to a virtual address before reading its values. This translation is done earlier in our code with the following line.
+
 ```c
 regaddr = io_p2v(addr);
 ```
 
-After the translation is made we loop through the for-loop for the amount of registers we want to read. First, the register that is specified by the user is read, than the upcomming onces if desired. This is done by ```regaddr++ ``` which moves the pointer up by one register so that we read the succeeding one in the next cycle of the loop.
+After the translation is made we loop through the for-loop for the amount of registers we want to read. First, the register that is specified by the user is read, than the upcomming onces if desired. This is done by `regaddr++ ` which moves the pointer up by one register so that we read the succeeding one in the next cycle of the loop.
 
-We check that the amount of data we read is smaller than or equal to our buffer length, this is done to prevent writing in memory that isn't ours. If the ```temp_buffer ``` is bigger than our ```sysfs_buffer ``` we won't write to the ```sysfs_buffer ``` buffer, otherwise we do.
+We check that the amount of data we read is smaller than or equal to our buffer length, this is done to prevent writing in memory that isn't ours. If the `temp_buffer ` is bigger than our `sysfs_buffer` we won't write to the `sysfs_buffer ` buffer, otherwise we do.
 
-After writing to the buffer ```sysfs_show()``` is called to read the buffer and display its contents to the user.
+After writing to the buffer `sysfs_show()` is called to read the buffer and display its contents to the user.
 
 
 #### Writing registers
 Our kernel module should also be able to write values to specific registers. We do that with the following code:
+
 ```c
 *(uint32_t*)regaddr = value;
 printk(KERN_INFO "Wrote: %u to address: %x", value, addr);
 ```
-Just like the reading part of our code, the register address ```regaddr```is first translated to the virtual address. After that we write ```value``` wich is specified by the user to that register. Next, we write this information to the kernel log 
+
+Just like the reading part of our code, the register address `regaddr`is first translated to the virtual address. After that we write `value` wich is specified by the user to that register. Next, we write this information to the kernel log 
 
 ### Testing the kernel module
 
 #### Reading registers
 To test our kernel module we'll be reading the value of Up Counter of the Real Time Clock (RTC) using its
-address. Using the LPC3250 manual we found the register for the Up Counter to be ```0x40024000```.
-The value of this register will increase every second, wich we'll use to verify that we are reading the correct registers .
+address. Using the LPC3250 manual we found the register for the Up Counter to be `0x40024000`.
+The value of this register will increase every second, wich we'll use to verify that we are reading the correct registers.
 When reading this register 3 times we verified this feature as seen below. 
 
 We also read two registers to check if this functionality worked. 
@@ -178,7 +194,7 @@ We used register ```0x400a8014``` to write our values to.
 
 First we read the value of the register which is 110, than we wrote a value of 0xff3 (1023) to it and confirmed the writing action by reading the value of the register again.
 
-```c
+```
 # insmod /usr/bin/hoi/sys-reader-1.ko 
 /sys/kernel/es6/hw created
 # echo "r 400a8014 1" > /sys/kernel/es6/hw 
