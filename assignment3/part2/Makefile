@@ -1,8 +1,8 @@
-PROJECT_NAME=i2c_develop
+PROJECT_NAME=led_appdev
 
 CFLAGS=
 
-MAIN_SOURCES=main.c i2c_develop.c
+MAIN_SOURCES=main.c i2c_develop.c led_controller.c
 
 GCC=arm-linux-gcc
 

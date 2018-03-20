@@ -62,7 +62,7 @@ int read_i2c(uint8_t i2c_address, char* filename, uint8_t* buf, int count, uint8
             return -1;
         }
 
-        if(buf[1] > MAX_ADDRESSES){
+        if(count > MAX_ADDRESSES){
             printf("Cannot read more than: %i addresses \n", MAX_ADDRESSES);
             close_dev(file);
             return -1;
