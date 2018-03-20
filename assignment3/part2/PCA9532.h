@@ -1,5 +1,5 @@
-#ifndef LEDCONTROLLER
-#define LEDCONTROLLER
+#ifndef PCA
+#define PCA
 
 /* Values to select certain registers to write to */
 #define INPUT0  0x00
@@ -21,5 +21,8 @@
 #define SET_LED1(mode) (mode << 2)
 #define SET_LED2(mode) (mode << 4)
 #define SET_LED3(mode) (mode << 6)
+
+#define PSC_DIM 0x01
+#define PWM_BLINK 
 
 #endif
