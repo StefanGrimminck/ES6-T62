@@ -30,5 +30,10 @@ Now we open the i2c master device and test if the operation has been succesful, 
         return -1;
     }
 ```
+Following the last operation, we need to select the right slave for our master to talk to. We do this by executing
+`ioctl(i2c_file, I2C_SLAVE, (__u16)i2c_address)`
+and checking for it's output.
+
+Depending on the mode the user selected we can read from or write to this address.
 
 ## Part 2
