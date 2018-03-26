@@ -27,8 +27,8 @@ int open_dev(char* filename, uint8_t i2c_address){
     return i2c_file;
 }
 
-int close_dev(int file_pointer){
-    close(file_pointer);
+int close_dev(int file_handle){
+    close(file_handle);
 }
 
 int write_buf(uint8_t i2c_address, char* filename, uint8_t* buf, int count){
@@ -37,9 +37,9 @@ int write_buf(uint8_t i2c_address, char* filename, uint8_t* buf, int count){
         return -1;
     }
 
-     if(write(file, buf, count) != count){
+    if(write(file, buf, count) != count){
             /* something went wrong with communication to the bus */
-            printf("Error while writing to the i2c bus \n");
+            printf("Error while writing to the i2c bus 2\n");
             close_dev(file);
             return -1;
         }
@@ -49,7 +49,7 @@ int write_buf(uint8_t i2c_address, char* filename, uint8_t* buf, int count){
     return count;
 }
 
-int read_i2c(uint8_t i2c_address, char* filename, uint8_t* buf, int count, uint8_t read_from){
+int read_buf(uint8_t i2c_address, char* filename, uint8_t* buf, int count, uint8_t read_from){
     int file = open_dev(filename, i2c_address);
     if(file == -1){
         return -1;
@@ -57,7 +57,7 @@ int read_i2c(uint8_t i2c_address, char* filename, uint8_t* buf, int count, uint8
 
      if(write(file, &read_from, 1) != 1){
             /* something went wrong when sending the registers we want to read */
-            printf("Error while writing to i2c bus 2\n");
+            printf("Error while writing to i2c bus 3\n");
             close_dev(file);
             return -1;
         }

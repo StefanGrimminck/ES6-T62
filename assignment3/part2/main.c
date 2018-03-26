@@ -16,5 +16,8 @@
 
 int main( int argc, const char* argv[] )
 {
-   SetSingleLed(1, ON);
+   //SetSingleLed(0, LED_PWM1);
+   SetBlink(2);
+   SetPWM(100);
+   //SetSingleLed(2, LED_ON);
 }
