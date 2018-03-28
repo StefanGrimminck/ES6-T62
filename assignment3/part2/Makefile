@@ -4,7 +4,8 @@ CFLAGS=
 
 MAIN_SOURCES=main.c i2c_develop.c led_controller.c PCA9532.c
 
-GCC=arm-linux-gcc
+GCC=/usr/local/xtools/arm-unknown-linux-uclibcgnueabi/bin/arm-linux-gcc
+
 
 all: $(PROJECT_NAME) copy
 

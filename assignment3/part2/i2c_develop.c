@@ -17,7 +17,6 @@ int open_dev(char* filename, uint8_t i2c_address){
         printf("Could not open the file, error: %s \n", strerror(errno));
         return -1;
     }
-    printf("Opened file: %s bytes: %i, file descriptor: %i \n", filename, i2c_file, i2c_file);
 
     if(ioctl(i2c_file, I2C_SLAVE, (__u16)i2c_address) < 0){
         printf("Could not use the i2c bus, error: %s \n", strerror(errno));
@@ -43,9 +42,8 @@ int write_buf(uint8_t i2c_address, char* filename, uint8_t* buf, int count){
             close_dev(file);
             return -1;
         }
-
-        printf("Written to i2c \n");
     close_dev(file);
+    
     return count;
 }
 

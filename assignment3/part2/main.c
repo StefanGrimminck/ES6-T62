@@ -12,15 +12,10 @@
 #include <stdbool.h>
 #include "led_controller.h"
 
-int mainMenu();
-int chooseLed(int choice);
+int chooseLed(int mode);
+int choosePWM(int mode);
 
 int main()
-{
-    return mainMenu();
-}
-
-int mainMenu()
 {
     bool escape = false;
     while (!escape) {
@@ -38,7 +33,7 @@ int mainMenu()
         printf("choose > ");
 
         if (!scanf("%i", &mode)) {
-            printf("ERROR: please choose a number from menu");
+            printf("ERROR: please choose a number from menu\n");
             return 1;
         }
 
@@ -76,10 +71,14 @@ int mainMenu()
             }
         }
         else {
-            printf("ERROR: please choose a number from menu");
+            printf("ERROR: please choose a number from menu\n");
+            return 1;
         }
     }
+    
+    return 0;
 }
+
 
 int choosePWM(int mode)
 {
@@ -98,6 +97,7 @@ int choosePWM(int mode)
             return 1;
         }
         SetBlink(ledval);
+
     }
     else if (mode == LED_PWM2) {
         printf("\nSet Dimmer value (%) [0 - 100]\n");
@@ -112,7 +112,13 @@ int choosePWM(int mode)
             printf("ERROR: please choose a number from menu");
             return 1;
         }
-        SetPWM(ledval);
+        if (SetPWM(ledval) < 2)
+        {
+			printf("An error occured while setting led value");
+			return 1;
+			
+		}
+		
     }
     return 0;
 }
@@ -134,8 +140,18 @@ int chooseLed(int mode)
     }
     /* The led values are defined as 0 - 7. However, the board specifies these leds as 1 - 8, so we subtract by 1. */ 
     led--;
-    SetSingleLed(led, LED_OFF);
-    SetSingleLed(led, mode); //TODO: CHECK FOR RETURN VALUE
+    
+    if(SetSingleLed(led, LED_OFF) != 2)
+    {
+		printf("An error occured while setting led value");
+		return 1;
+	}
+	
+	if(SetSingleLed(led, mode) != 2)
+    {
+		printf("An error occured while setting led value");
+		return 1;
+	}
 
     return 0;
 }

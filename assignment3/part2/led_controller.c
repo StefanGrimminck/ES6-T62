@@ -12,48 +12,46 @@ int SetSingleLed(int ledNum, int mode){
     uint8_t buf[2];
 
             if(ledNum <= 3){
-                read_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, &currentStatus, 1, LS2);
-                printf("before: %x \n", currentStatus);
-                if (mode == LED_ON || mode == LED_PWM1 || mode == LED_PWM2)
+                if (read_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, &currentStatus, 1, LS2))
                 {
-                    currentStatus |= SET_LED(mode, ledNum);
-                }else if (mode == LED_OFF)
-                {
-                    currentStatus &= ~SET_LED_OFF(ledNum);
-                }
-                buf[0] = LS2;
-                buf[1] = currentStatus;
-                printf("after: %x \n", currentStatus);
-                write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 2);
+					if (mode == LED_ON || mode == LED_PWM1 || mode == LED_PWM2)
+					{
+						currentStatus |= SET_LED(mode, ledNum);
+					}else if (mode == LED_OFF)
+					{
+						currentStatus &= ~SET_LED_OFF(ledNum);
+					}
+					buf[0] = LS2;
+					buf[1] = currentStatus;
+					write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 2);
+					return write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 2);
+				}	
             }
             else{
                 ledNum = ledNum - 4;
-                read_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, &currentStatus, 1, LS3);
-                printf("before: %x \n", currentStatus);
-                if (mode == LED_ON)
+                if(read_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, &currentStatus, 1, LS3))
                 {
-                    currentStatus |= SET_LED(mode, ledNum);
-                }else if (mode == LED_OFF)
-                {
-                    currentStatus &= ~SET_LED_OFF(ledNum);
-                }
-                buf[0] = LS3;
-                buf[1] = currentStatus;
-                printf("after: %x \n", currentStatus);
-                write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 2);
+					if (mode == LED_ON || mode == LED_PWM1 || mode == LED_PWM2)
+					{
+						currentStatus |= SET_LED(mode, ledNum);
+					}else if (mode == LED_OFF)
+					{
+						currentStatus &= ~SET_LED_OFF(ledNum);
+					}
+					buf[0] = LS3;
+					buf[1] = currentStatus;
+
+					return write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 2);
+				}
             }
-}
-
-/* Function to set the mode of multiple leds (on/off/pwm1/pwm2)*/
-int SetMultipleLeds(int* ledNums, int mode){
-    // TODO: go through list, and call the SetSingleLed function
-
+            
+            return -1;
 }
 
 /* Function to set the PWM0 and PSC0 registers. dutycycle = 0 <> 100 */
 int SetPWM(int dutyCycle){
     if(dutyCycle < 0 || dutyCycle > 100 ){
-        printf("dutyCycle should bee between 0 and 100");
+        printf("dutyCycle should be between 0 and 100");
         return -1;
     }
     
@@ -61,8 +59,8 @@ int SetPWM(int dutyCycle){
     buf[0] = PSC0;
     buf[1] = PSC_DIM;
     buf[2] = map(dutyCycle, 0, 100, 0, 255);
-    write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 3);
-    return 0;
+    
+    return write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 3);
 }
 
 /* Function to set the PWM1 and PSC1 registers speed = 1hz <> 50hz */
@@ -76,8 +74,8 @@ int SetBlink(int speed){
     buf[0] = PSC1;
     buf[1] = (int)val;
     buf[2] = PWM_BLINK;
-    write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 3);
 
+	return write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 3);
 }
 
 /* From Arduino */
