@@ -30,6 +30,7 @@ for(i; i < (argc - 4); i++){
         printf("register %i = %x \n", i, i2c_buf[i+1]);
     }
 ```
+TODO: EXPLAIN WHAT HAPPENS HERE!
 
 IF the user specifies he wants to write to a certain address the following function is called:
 ```c
@@ -67,8 +68,6 @@ int write_buf(uint8_t i2c_address, char* filename, uint8_t* buf, int count){
 
 This function calles 'int open_dev(char* filename, uint8_t i2c_address)' to open `I2CFILENAME` specified in main.c, which is `/dev/i2c-0` in our case. Than we use the `ioctl()` function to manipulate the underlying device parameters and write data to the I2C slave. 
 Now we return back to the `write_i2c()' function and use  `write()` to write our i2c_buf to the bus.
-
-
 After this operation the '/dev/i2c-0' file is closed.
 
 ```c
@@ -115,25 +114,17 @@ int read_i2c(uint8_t i2c_address, char* filename, uint8_t* buf, int count, uint8
     return count;
 }
 ```
-Like in
-
-
-
-
-
-
-Now we open the i2c master device and test if the operation has been succesful, if not display the errormessage to the user.
+We first open the `/dev/i2c-0` file and write the base address. We do this as follows: `write(file, &read_from, 1)`.
+Than we call the `read()` function, which we use the read from the BUS.
+We do this with:
 ```c
- int i2c_file = open(I2CFILENAME, O_RDWR);
-    if(i2c_file < 0){
-        printf("Could not open the file, error: %s \n", strerror(errno));
-        return -1;
-    }
+ if(read(file, buf, count) != count){
+            printf("Error while reading from i2c bus \n");
+            close_dev(file);
+            return -1;
+        }
 ```
-Following the last operation, we need to select the right slave for our master to talk to. We do this by executing
-`ioctl(i2c_file, I2C_SLAVE, (__u16)i2c_address)`
-and checking for it's output.
-
-Depending on the mode the user selected we can read from or write to this address.
-
+ Where `file` is the file descriptor for '/dev/i2c-0', buf is the buffer that the read data is written to and count is the amount bytes that need to be read. After this operation the buffer contents is displayed to the user and the file is closed.
+ 
+ 
 ## Part 2
