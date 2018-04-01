@@ -16,6 +16,7 @@ int SetSingleLed(int ledNum, int mode){
                 {
 					if (mode == LED_ON || mode == LED_PWM1 || mode == LED_PWM2)
 					{
+						currentStatus &= ~SET_LED_OFF(ledNum);
 						currentStatus |= SET_LED(mode, ledNum);
 					}else if (mode == LED_OFF)
 					{
@@ -33,9 +34,11 @@ int SetSingleLed(int ledNum, int mode){
                 {
 					if (mode == LED_ON || mode == LED_PWM1 || mode == LED_PWM2)
 					{
+						currentStatus &= ~SET_LED_OFF(ledNum);
 						currentStatus |= SET_LED(mode, ledNum);
 					}else if (mode == LED_OFF)
 					{
+						
 						currentStatus &= ~SET_LED_OFF(ledNum);
 					}
 					buf[0] = LS3;
