@@ -1,6 +1,7 @@
 # Controlling the I²C bus on the LPC3250
-Stefan Grimminck & ~~Skip Geldens~~
+Stefan Grimminck & Skip Geldens
 T62
+
 ## Part 1 
 We set out to make an user space program for a hardware engineer that can write registers to the  I²C bus.
 The Hardware Engineer is mainly focused what he can see on this oscilloscope. So he wants to have a
