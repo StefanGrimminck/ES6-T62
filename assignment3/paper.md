@@ -219,9 +219,15 @@ As you can see, the function consists of a big if-else statement. This is done t
 
 In both cases we first read the LED controller register with the `read_buf` function, wich we covered in part 1. 
 
+....
+...
+.....
 
-TODO: WE FIRST SET LEDS TO OFF BEFORE CHANGING ITS MODE, THIS IS NOW DONE IN MAIN.C BUT SHOULD BE DONE IN THE FILE ABOVE.
 
+
+
+## Testing ##
+https://youtu.be/XaHJRevon5Q
 
 
 
