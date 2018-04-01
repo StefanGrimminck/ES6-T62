@@ -22,7 +22,14 @@ This parsing is done with the following lines of code:
     printf("base_address: %lu \n", base_address);
 
 ```
-Now we have an `i2c address`, a `base_address` and a r/w option. These parameters are used to populate 'i2c_buf) where its contents is used as parameters in the following funtions:
+Now we have an `i2c address`, a `base_address` and a r/w option. These parameters are used to populate 'i2c_buf`. 
+Where i2c_buf[0] is our base address and other spaces in the buffer are populated with:
+```c
+for(i; i < (argc - 4); i++){
+        i2c_buf[i+1] = (uint8_t)strtoul(argv[i+4], NULL, 16);
+        printf("register %i = %x \n", i, i2c_buf[i+1]);
+    }
+```
 
 IF the user specifies he wants to write to a certain address the following function is called:
 ```c
@@ -58,7 +65,11 @@ int write_buf(uint8_t i2c_address, char* filename, uint8_t* buf, int count){
 }
 ```
 
-This function calles 'int open_dev(char* filename, uint8_t i2c_address)' to open `I2CFILENAME` specified in main.c, which is `/dev/i2c-0` in our case. Than we use the `ioctl()` function to manipulate the underlying device parameters and write data to the I2C slave. After this operation the '/dev/i2c-0' file is closed.
+This function calles 'int open_dev(char* filename, uint8_t i2c_address)' to open `I2CFILENAME` specified in main.c, which is `/dev/i2c-0` in our case. Than we use the `ioctl()` function to manipulate the underlying device parameters and write data to the I2C slave. 
+Now we return back to the `write_i2c()' function and use  `write()` to write our i2c_buf to the bus.
+
+
+After this operation the '/dev/i2c-0' file is closed.
 
 ```c
 if(ioctl(i2c_file, I2C_SLAVE, (__u16)i2c_address) < 0){
@@ -69,12 +80,46 @@ if(ioctl(i2c_file, I2C_SLAVE, (__u16)i2c_address) < 0){
 ```
     
 
-
-
-
-
-
 ### Reading values from the I2C Bus ###
+
+The implemententation ofcourse looks different the writing function but will also utilze `open_dev(char* filename, uint8_t i2c_address)` for the file handeling.
+
+```c
+int read_i2c(uint8_t i2c_address, char* filename, uint8_t* buf, int count, uint8_t read_from){
+    int file = open_dev(filename, i2c_address);
+    if(file == -1){
+        return -1;
+    }
+
+     if(write(file, &read_from, 1) != 1){
+            /* something went wrong when sending the registers we want to read */
+            printf("Error while writing to i2c bus 2\n");
+            close_dev(file);
+            return -1;
+        }
+
+        if(buf[1] > MAX_ADDRESSES){
+            printf("Cannot read more than: %i addresses \n", MAX_ADDRESSES);
+            close_dev(file);
+            return -1;
+        }
+
+        uint8_t read_buf[count];
+        if(read(file, buf, count) != count){
+            printf("Error while reading from i2c bus \n");
+            close_dev(file);
+            return -1;
+        }
+    
+    close_dev(file);
+    return count;
+}
+```
+Like in
+
+
+
+
 
 
 Now we open the i2c master device and test if the operation has been succesful, if not display the errormessage to the user.
