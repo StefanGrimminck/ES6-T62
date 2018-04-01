@@ -156,5 +156,65 @@ Because our hardware engineer doens't need knowlage about internal registers, we
 #define PSC_DIM 0x01
 #define PWM_BLINK 0x80
 ```
+We also define two Marco's to set the LEDs ON, OFF, in Blink mode or in dimm mode. Their functionality will be speciefd below.
 
-We also define two Marco's to set the LEDs ON, OFF, in Blink mode or in dimm mode.
+
+First we start with `main.c`. This is where the CLI lives and calles the functions specified in 'led_controller.c'. These are:
+```c
+int SetSingleLed(int ledNum, int mode);
+int SetPWM(int dutyCycle);
+int SetBlink(int speed);
+```
+
+The `SetSingleLed()` function is as its name implies where we'll set our lets in the differt 'LED modes" specified in `PCA9532.h`.
+```c
+/* Function to set the mode of a single led (on/off/pwm1/pwm2) */
+int SetSingleLed(int ledNum, int mode){
+    if(ledNum < 0 || ledNum > 7){
+        printf("Wrong led number");
+        return -1;
+    }
+    uint8_t currentStatus;
+    uint8_t buf[2];
+
+            if(ledNum <= 3){
+                if (read_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, &currentStatus, 1, LS2))
+                {
+					if (mode == LED_ON || mode == LED_PWM1 || mode == LED_PWM2)
+					{
+						currentStatus |= SET_LED(mode, ledNum);
+					}else if (mode == LED_OFF)
+					{
+						currentStatus &= ~SET_LED_OFF(ledNum);
+					}
+					buf[0] = LS2;
+					buf[1] = currentStatus;
+					write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 2);
+					return write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 2);
+				}	
+            }
+            else{
+                ledNum = ledNum - 4;
+                if(read_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, &currentStatus, 1, LS3))
+                {
+					if (mode == LED_ON || mode == LED_PWM1 || mode == LED_PWM2)
+					{
+						currentStatus |= SET_LED(mode, ledNum);
+					}else if (mode == LED_OFF)
+					{
+						currentStatus &= ~SET_LED_OFF(ledNum);
+					}
+					buf[0] = LS3;
+					buf[1] = currentStatus;
+
+					return write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 2);
+				}
+            }
+            
+            return -1;
+}
+```
+
+
+
+
