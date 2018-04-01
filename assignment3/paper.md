@@ -180,40 +180,47 @@ int SetSingleLed(int ledNum, int mode){
             if(ledNum <= 3){
                 if (read_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, &currentStatus, 1, LS2))
                 {
-					if (mode == LED_ON || mode == LED_PWM1 || mode == LED_PWM2)
-					{
-						currentStatus |= SET_LED(mode, ledNum);
-					}else if (mode == LED_OFF)
-					{
-						currentStatus &= ~SET_LED_OFF(ledNum);
-					}
-					buf[0] = LS2;
-					buf[1] = currentStatus;
-					write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 2);
-					return write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 2);
-				}	
+			if (mode == LED_ON || mode == LED_PWM1 || mode == LED_PWM2)
+			{
+				currentStatus |= SET_LED(mode, ledNum);
+			}else if (mode == LED_OFF)
+			{
+				currentStatus &= ~SET_LED_OFF(ledNum);
+			}
+			buf[0] = LS2;
+			buf[1] = currentStatus;
+			write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 2);
+			return write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 2);
+		}	
             }
             else{
                 ledNum = ledNum - 4;
                 if(read_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, &currentStatus, 1, LS3))
                 {
-					if (mode == LED_ON || mode == LED_PWM1 || mode == LED_PWM2)
-					{
-						currentStatus |= SET_LED(mode, ledNum);
-					}else if (mode == LED_OFF)
-					{
-						currentStatus &= ~SET_LED_OFF(ledNum);
-					}
-					buf[0] = LS3;
-					buf[1] = currentStatus;
+			if (mode == LED_ON || mode == LED_PWM1 || mode == LED_PWM2)
+			{
+				currentStatus |= SET_LED(mode, ledNum);
+			}else if (mode == LED_OFF)
+			{
+				currentStatus &= ~SET_LED_OFF(ledNum);
+			}
+			buf[0] = LS3;
+			buf[1] = currentStatus;
 
-					return write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 2);
-				}
+			return write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 2);
+		}
             }
             
             return -1;
 }
 ```
+
+As you can see, the function consists of a big if-else statement. This is done to make sure LS2 is used for LED [1 - 4] and LS3 for LED [5 - 8].
+
+In both cases we first read the LED controller register with the `read_buf` function, wich we covered in part 1. 
+
+
+TODO: WE FIRST SET LEDS TO OFF BEFORE CHANGING ITS MODE, THIS IS NOW DONE IN MAIN.C BUT SHOULD BE DONE IN THE FILE ABOVE.
 
 
 
