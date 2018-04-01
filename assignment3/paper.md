@@ -128,3 +128,33 @@ We do this with:
  
  
 ## Part 2
+
+In this part of the assignment we write a user space program for our hardware engineer to conrtol the eight LEDs on the LPC2350 board. We will also create a simple CLI for the engineer to use where he or she can control the leds without needing the knowlage of the internal registers. Part 2 is built on the code of Part 1 and will use the `i2c_develop.c`	and `i2c_develop.h` again to communicate over the bus.
+
+Because our hardware engineer doens't need knowlage about internal registers, we'll define them for him / her. We do this in `PCA9532.h`. 
+
+```c
+#define INPUT0  0x10
+#define PSC0    0x12
+#define PWM0    0x13
+#define PSC1    0x14
+#define PWM1    0x15
+#define LS2     0x18
+#define LS3     0x19
+
+/* Led modes */
+#define LED_ON      0x01
+#define LED_OFF     0x00
+#define LED_PWM1    0x02
+#define LED_PWM2    0x03
+
+/* Macro's to set a led on a mode */
+#define SET_LED(mode, num) (mode << (num*2))
+#define SET_LED_OFF(num) (0x03 << (num*2))
+
+
+#define PSC_DIM 0x01
+#define PWM_BLINK 0x80
+```
+
+We also define two Marco's to set the LEDs ON, OFF, in Blink mode or in dimm mode.
