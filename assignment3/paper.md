@@ -285,6 +285,8 @@ int SetBlink(int speed){
 ```
 The values of `PSC1` and `PWM_BLINK` are defined in `PCA9532.h` which are  `0x14` and `0x80`.
 
+**TODO: EXPLAIN WHY WE USE 0x80 and 0x14.**
+
 By setting `PWM_BLINK` to 0x80 which is 128 in decimal we set the `BLINK1` to 0,5. This value is calculated by `BLINK1 = PWM1 / 256`.
 Now we use the user input to set the PSC1 register. The value is calculated by:
 ```c
