@@ -222,10 +222,13 @@ These registers are found in the datasheet of the PCA9532 on page 6
 ![Contol register defenition](https://raw.githubusercontent.com/StefanGrimminck/ES6-T62/e03d3cb5d512c7f8931de54923a8e613f256fbd7/assignment3/part2/PCA9532_LS.PNG?token=APGtYt8sNpx9U0cjytFThEE0hzVOUl2zks5awgnuwA%3D%3D)
 
 
-
-
-
 In both cases we first read the LED controller register with the `read_buf` function, wich we covered in part 1. 
+
+To set the LEDS in the right mode we use Table 10 in the datahseet as a reference for our bitmanipulation. As seen below we'll conrtoll LED [8 - 15] wich correspond with LED [1 - 8] on the LPC board.
+
+
+![LS0 to LS3 - LED selector regsiters](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment3/part2/LS_selector_registers.PNG?raw=true)
+
 
 
 
