@@ -124,7 +124,9 @@ We do this with:
             return -1;
         }
 ```
- Where `file` is the file descriptor for `	/dev/i2c-0`, buf is the buffer that the read data is written to and count is the amount bytes that need to be read. After this operation the buffer contents is displayed to the user and the file is closed.
+ Where `file` is the file descriptor for `/dev/i2c-0`, buf is the buffer that the read data is written to and count is the amount bytes that need to be read. After this operation the buffer contents is displayed to the user and the file is closed.
+ 
+ TODO: EXPLAIN WHY WE DO THE WRITE OPERATION FIRST.
  
  
 ## Part 2
