@@ -22,7 +22,7 @@ This parsing is done with the following lines of code:
     printf("base_address: %lu \n", base_address);
 
 ```
-Now we have an `i2c address`, a `base_address` and a r/w option. These parameters are used to populate 'i2c_buf`. 
+Now we have an `i2c address`, a `base_address` and a r/w option. These parameters are used to populate `i2c_buf`. 
 Where i2c_buf[0] is our base address and other spaces in the buffer are populated with:
 ```c
 for(i; i < (argc - 4); i++){
@@ -66,9 +66,9 @@ int write_buf(uint8_t i2c_address, char* filename, uint8_t* buf, int count){
 }
 ```
 
-This function calles 'int open_dev(char* filename, uint8_t i2c_address)' to open `I2CFILENAME` specified in main.c, which is `/dev/i2c-0` in our case. Than we use the `ioctl()` function to manipulate the underlying device parameters and write data to the I2C slave. 
-Now we return back to the `write_i2c()' function and use  `write()` to write our i2c_buf to the bus.
-After this operation the '/dev/i2c-0' file is closed.
+This function calles `int open_dev(char* filename, uint8_t i2c_address)` to open `I2CFILENAME` specified in main.c, which is `/dev/i2c-0` in our case. Than we use the `ioctl()` function to manipulate the underlying device parameters and write data to the I2C slave. 
+Now we return back to the `write_i2c()` function and use  `write()` to write our i2c_buf to the bus.
+After this operation the `/dev/i2c-0` file is closed.
 
 ```c
 if(ioctl(i2c_file, I2C_SLAVE, (__u16)i2c_address) < 0){
@@ -124,7 +124,7 @@ We do this with:
             return -1;
         }
 ```
- Where `file` is the file descriptor for '/dev/i2c-0', buf is the buffer that the read data is written to and count is the amount bytes that need to be read. After this operation the buffer contents is displayed to the user and the file is closed.
+ Where `file` is the file descriptor for `	/dev/i2c-0`, buf is the buffer that the read data is written to and count is the amount bytes that need to be read. After this operation the buffer contents is displayed to the user and the file is closed.
  
  
 ## Part 2
@@ -159,14 +159,14 @@ Because our hardware engineer doens't need knowlage about internal registers, we
 We also define two Marco's to set the LEDs ON, OFF, in Blink mode or in dimm mode. Their functionality will be speciefd below.
 
 
-First we start with `main.c`. This is where the CLI lives and calles the functions specified in 'led_controller.c'. These are:
+First we start with `main.c`. This is where the CLI lives and calles the functions specified in `led_controller.c`. These are:
 ```c
 int SetSingleLed(int ledNum, int mode);
 int SetPWM(int dutyCycle);
 int SetBlink(int speed);
 ```
 
-The `SetSingleLed()` function is as its name implies where we'll set our lets in the differt 'LED modes" specified in `PCA9532.h`.
+The `SetSingleLed()` function is as its name implies where we'll set our lets in the different "LED modes" specified in `PCA9532.h`.
 ```c
 /* Function to set the mode of a single led (on/off/pwm1/pwm2) */
 int SetSingleLed(int ledNum, int mode){
