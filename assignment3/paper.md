@@ -30,9 +30,9 @@ for(i; i < (argc - 4); i++){
         printf("register %i = %x \n", i, i2c_buf[i+1]);
     }
 ```
-TODO: EXPLAIN WHAT HAPPENS HERE!
+**TODO: EXPLAIN WHAT HAPPENS HERE!**
 
-IF the user specifies he wants to write to a certain address the following function is called:
+If the user specifies he wants to write to a certain address the following function is called:
 ```c
 write_buf(i2c_address, I2CFILENAME, i2c_buf, amount_read) == -1)
 ```
@@ -126,14 +126,14 @@ We do this with:
 ```
  Where `file` is the file descriptor for `/dev/i2c-0`, buf is the buffer that the read data is written to and count is the amount bytes that need to be read. After this operation the buffer contents is displayed to the user and the file is closed.
  
- TODO: EXPLAIN WHY WE DO THE WRITE OPERATION FIRST.
+ **TODO: EXPLAIN WHY WE DO THE WRITE OPERATION FIRST.**
  
  
 ## Part 2
 
 In this part of the assignment we write a user space program for our hardware engineer to conrtol the eight LEDs on the LPC2350 board. We will also create a simple CLI for the engineer to use where he or she can control the leds without needing the knowlage of the internal registers. Part 2 is built on the code of Part 1 and will use the `i2c_develop.c`	and `i2c_develop.h` again to communicate over the bus.
 
-Because our hardware engineer doens't need knowlage about internal registers, we'll define them for him / her. We do this in `PCA9532.h`. 
+Because our hardware engineer doesn't need knowlage about internal registers, we'll define them for him / her. We do this in `PCA9532.h`. 
 
 ```c
 #define INPUT0  0x10
@@ -158,7 +158,7 @@ Because our hardware engineer doens't need knowlage about internal registers, we
 #define PSC_DIM 0x01
 #define PWM_BLINK 0x80
 ```
-We also define two Marco's to set the LEDs ON, OFF, in Blink mode or in dimm mode. Their functionality will be speciefd below.
+We also define two Marco's to set the LEDs ON, OFF, in Blink mode or in dimm mode. Their functionality will be specified below.
 
 
 First we start with `main.c`. This is where the CLI lives and calles the functions specified in `led_controller.c`. These are:
@@ -220,7 +220,7 @@ int SetSingleLed(int ledNum, int mode){
 ```
 
 As you can see, the function consists of a big if-else statement. This is done to make sure LS2 is used for LED [1 - 4] and LS3 for LED [5 - 8].
-These registers are found in the datasheet of the PCA9532 on page 6
+These registers are found in the datasheet of the PCA9532 on page 6.
 
 ![Contol register defenition](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment3/part2/PCA9532_LS.PNG?raw=true)
 
@@ -260,7 +260,8 @@ int SetPWM(int dutyCycle){
 }
 ```
 The values of `PSCO` and `PSC_DIM` are defined in `PCA9532.h` which are  `0x12` and `0x13`.
-TODO: EXPLAIN WHY WE USE 0x12 AND 0x13 INSTEAD OF 0x02 AND 0x03.
+
+**TODO: EXPLAIN WHY WE USE 0x12 AND 0x13 INSTEAD OF 0x02 AND 0x03.**
 
 We'll map the input of the user [0 - 100] to [0 - 255] to set exactly a bitwise value between 0000 0000 and 1111 1111. This value is written to PWM0 where the duty cycle is determend by `BLINK0 = PWM0 / 256`.
 
@@ -292,7 +293,7 @@ double val = (secs*152) - 1;
 ```
 This determens the period of `BLINK1`.	
 
-TODO: VALIDATE THIS EXPLANATION WITH THE CORRESPONDING REGISTERS
+**TODO: VALIDATE THIS EXPLANATION WITH THE CORRESPONDING REGISTERS**
 
 ## Testing ##
 We tested both part 1 and part 2. We give a quick overview of the usertest in the following video.
@@ -300,13 +301,13 @@ https://youtu.be/XaHJRevon5Q
 
 This testing is not enough, so we used a logic analyzer to validate the values we write to the bus.
 
-Here we write value XXXX to XXXX and read XXXX
+**Here we write value XXXX to XXXX and read XXXX**
 ![Reading and writing operation](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment3/part2/Read_Write_Operation.jpeg?raw=true)
 
-Here we write value XXXX to XXXX 
+**Here we write value XXXX to XXXX**
 ![Writing operation](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment3/part2/Write_Operation.jpeg?raw=true)
 
-Here we write value XXXX to XXXX 
+**Here we write value XXXX to XXXX**
 ![Writing operation2](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment3/part2/Write_Operation_2.jpeg?raw=true)
 
 
