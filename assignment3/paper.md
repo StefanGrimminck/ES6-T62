@@ -231,7 +231,7 @@ To set the LEDS in the right mode we use Table 10 in the datahseet as a referenc
 ![LS0 to LS3 - LED selector regsiters](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment3/part2/LS_selector_registers.PNG?raw=true)
 
 As you can see, the definitions in `PCA9532.h` for led modes correspond with the modes described in the LED selector registers.
-With the `SET_LED_OFF` and `SET_LED' macro's we can create a mask to set the correct bits in the obtained LSn registers. After this is done we write the new value back to the register to set the leds.
+With the `SET_LED_OFF` and `SET_LED` macro's we can create a mask to set the correct bits in the obtained LSn registers. After this is done we write the new value back to the register to set the leds with `write_buf`.
 
 For our blink and dimmer function we do need to manipulate aditional register values. These are
 - PSC0 => program the period of the PWM output. (Blink1)
