@@ -219,7 +219,8 @@ int SetSingleLed(int ledNum, int mode){
 
 As you can see, the function consists of a big if-else statement. This is done to make sure LS2 is used for LED [1 - 4] and LS3 for LED [5 - 8].
 These registers are found in the datasheet of the PCA9532 on page 6
-![Contol register defenition](https://raw.githubusercontent.com/StefanGrimminck/ES6-T62/e03d3cb5d512c7f8931de54923a8e613f256fbd7/assignment3/part2/PCA9532_LS.PNG?token=APGtYt8sNpx9U0cjytFThEE0hzVOUl2zks5awgnuwA%3D%3D)
+
+![Contol register defenition](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment3/part2/PCA9532_LS.PNG?raw=true)
 
 
 In both cases we first read the LED controller register with the `read_buf` function, wich we covered in part 1. 
