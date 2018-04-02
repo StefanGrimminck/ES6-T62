@@ -23,14 +23,13 @@ This parsing is done with the following lines of code:
 
 ```
 Now we have an `i2c address`, a `base_address` and a r/w option. These parameters are used to populate `i2c_buf`. 
-Where i2c_buf[0] is our base address and other spaces in the buffer are populated with:
+Where i2c_buf[0] is our base address and other spaces in the buffer are populated with the values:
 ```c
 for(i; i < (argc - 4); i++){
         i2c_buf[i+1] = (uint8_t)strtoul(argv[i+4], NULL, 16);
         printf("register %i = %x \n", i, i2c_buf[i+1]);
     }
 ```
-**TODO: EXPLAIN WHAT HAPPENS HERE!**
 
 If the user specifies he wants to write to a certain address the following function is called:
 ```c
@@ -66,7 +65,7 @@ int write_buf(uint8_t i2c_address, char* filename, uint8_t* buf, int count){
 }
 ```
 
-This function calles `int open_dev(char* filename, uint8_t i2c_address)` to open `I2CFILENAME` specified in main.c, which is `/dev/i2c-0` in our case. Than we use the `ioctl()` function to manipulate the underlying device parameters and write data to the I2C slave. 
+This function calles `int open_dev(char* filename, uint8_t i2c_address)` to open `I2CFILENAME` specified in main.c, which is `/dev/i2c-0`. Than we use the `ioctl()` function to manipulate the underlying device parameters and write data to the I2C slave. 
 Now we return back to the `write_i2c()` function and use  `write()` to write our i2c_buf to the bus.
 After this operation the `/dev/i2c-0` file is closed.
 
@@ -125,8 +124,6 @@ We do this with:
         }
 ```
  Where `file` is the file descriptor for `/dev/i2c-0`, buf is the buffer that the read data is written to and count is the amount bytes that need to be read. After this operation the buffer contents is displayed to the user and the file is closed.
- 
- **TODO: EXPLAIN WHY WE DO THE WRITE OPERATION FIRST.**
  
  
 ## Part 2
@@ -227,7 +224,7 @@ These registers are found in the datasheet of the PCA9532 on page 6.
 
 In both cases we first read the LED controller register with the `read_buf` function, wich we covered in part 1. 
 
-To set the LEDS in the right mode we use Table 10 in the datahseet as a reference for our bit manipulation. As seen below we'll conrtoll LED [8 - 15] wich correspond with LED [1 - 8] on the LPC board.
+To set the LEDS in the right mode we use Table 10 in the datahseet as a reference for our bit manipulation. As seen below we'll control LED [8 - 15] wich correspond with LED [1 - 8] on the LPC board.
 
 
 ![LS0 to LS3 - LED selector regsiters](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment3/part2/LS_selector_registers.PNG?raw=true)
@@ -259,9 +256,6 @@ int SetPWM(int dutyCycle){
     return write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 3);
 }
 ```
-The values of `PSCO` and `PSC_DIM` are defined in `PCA9532.h` which are  `0x12` and `0x13`.
-
-**TODO: EXPLAIN WHY WE USE 0x12 AND 0x13 INSTEAD OF 0x02 AND 0x03.**
 
 We'll map the input of the user [0 - 100] to [0 - 255] to set exactly a bitwise value between 0000 0000 and 1111 1111. This value is written to PWM0 where the duty cycle is determend by `BLINK0 = PWM0 / 256`.
 
@@ -283,10 +277,6 @@ int SetBlink(int speed){
 	return write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 3);
 }
 ```
-The values of `PSC1` and `PWM_BLINK` are defined in `PCA9532.h` which are  `0x14` and `0x80`.
-
-**TODO: EXPLAIN WHY WE USE 0x80 and 0x14.**
-
 By setting `PWM_BLINK` to 0x80 which is 128 in decimal we set the `BLINK1` to 0,5. This value is calculated by `BLINK1 = PWM1 / 256`.
 Now we use the user input to set the PSC1 register. The value is calculated by:
 ```c
@@ -295,7 +285,6 @@ double val = (secs*152) - 1;
 ```
 This determens the period of `BLINK1`.	
 
-**TODO: VALIDATE THIS EXPLANATION WITH THE CORRESPONDING REGISTERS**
 
 ## Testing ##
 We tested both part 1 and part 2. We give a quick overview of the usertest in the following video.
@@ -303,13 +292,13 @@ https://youtu.be/XaHJRevon5Q
 
 This testing is not enough, so we used a logic analyzer to validate the values we write to the bus.
 
-**Here we write value XXXX to XXXX and read XXXX**
+Here we successfully perform a write and read operation.
 ![Reading and writing operation](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment3/part2/Read_Write_Operation.jpeg?raw=true)
 
-**Here we write value XXXX to XXXX**
+Here we successfully perform a write operation.
 ![Writing operation](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment3/part2/Write_Operation.jpeg?raw=true)
 
-**Here we write value XXXX to XXXX**
+And here we perform another successful write operation.
 ![Writing operation2](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment3/part2/Write_Operation_2.jpeg?raw=true)
 
 
