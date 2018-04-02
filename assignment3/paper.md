@@ -225,19 +225,78 @@ These registers are found in the datasheet of the PCA9532 on page 6
 
 In both cases we first read the LED controller register with the `read_buf` function, wich we covered in part 1. 
 
-To set the LEDS in the right mode we use Table 10 in the datahseet as a reference for our bitmanipulation. As seen below we'll conrtoll LED [8 - 15] wich correspond with LED [1 - 8] on the LPC board.
+To set the LEDS in the right mode we use Table 10 in the datahseet as a reference for our bit manipulation. As seen below we'll conrtoll LED [8 - 15] wich correspond with LED [1 - 8] on the LPC board.
 
 
 ![LS0 to LS3 - LED selector regsiters](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment3/part2/LS_selector_registers.PNG?raw=true)
 
+As you can see, the definitions in `PCA9532.h` for led modes correspond with the modes described in the LED selector registers.
+With the `SET_LED_OFF` and `SET_LED' macro's we can create a mask to set the correct bits in the obtained LSn registers. After this is done we write the new value back to the register to set the leds.
+
+For our blink and dimmer function we do need to manipulate aditional register values. These are
+- PSC0 => program the period of the PWM output. (Blink1)
+- PWM0 => Determines the duty cycle of Blink0
+- PSC1 => Promgram the period of the PWM output. (Blink0)
+- PWM1 => The PWM1 register determines the duty cycle of BLINK1. 
 
 
+### The dimming feature ###
+For the PWM we'll set the PWM0 and PSC0 registers with the following function:
+```c
+int SetPWM(int dutyCycle){
+    if(dutyCycle < 0 || dutyCycle > 100 ){
+        printf("dutyCycle should be between 0 and 100");
+        return -1;
+    }
+    
+    uint8_t buf[3];
+    buf[0] = PSC0;
+    buf[1] = PSC_DIM;
+    buf[2] = map(dutyCycle, 0, 100, 0, 255);
+    
+    return write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 3);
+}
+```
+The values of `PSCO` and `PSC_DIM` are defined in `PCA9532.h` which are  `0x12` and `0x13`.
+TODO: EXPLAIN WHY WE USE 0x12 AND 0x13 INSTEAD OF 0x02 AND 0x03.
+
+We'll map the input of the user [0 - 100] to [0 - 255] to set exactly a bitwise value between 0000 0000 and 1111 1111. This value is written to PWM0 where the duty cycle is determend by `BLINK0 = PWM0 / 256`.
 
 
+### The blinking feature ###
 
+```c
+int SetBlink(int speed){
+    uint8_t buf[3];
+
+    /* calculating the value from the input Hz */
+    double secs = 1 / (double)speed;
+    double val = (secs*152) - 1;
+
+    buf[0] = PSC1;
+    buf[1] = (int)val;
+    buf[2] = PWM_BLINK;
+
+	return write_buf(LED_CONTROLLER_ADDRESS, I2CFILENAME, buf, 3);
+}
+```
+The values of `PSC1` and `PWM_BLINK` are defined in `PCA9532.h` which are  `0x14` and `0x80`.
+
+By setting `PWM_BLINK` to 0x80 which is 128 in decimal we set the `BLINK1` to 0,5. This value is calculated by `BLINK1 = PWM1 / 256`.
+Now we use the user input to set the PSC1 register. The value is calculated by:
+```c
+double secs = 1 / (double)speed;
+double val = (secs*152) - 1;
+```
+This determens the period of `BLINK1`.	
+
+TODO: VALIDATE THIS EXPLANATION WITH THE CORRESPONDING REGISTERS
 
 ## Testing ##
+We tested both part 1 and part 2. We give a quick overview of the usertest in the following video.
 https://youtu.be/XaHJRevon5Q
+
+This testing is not enough, so we used a logic analyzer to validate the values we write to the bus.
 
 
 
