@@ -299,4 +299,12 @@ https://youtu.be/XaHJRevon5Q
 This testing is not enough, so we used a logic analyzer to validate the values we write to the bus.
 
 
+![Reading and writing operation](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment3/part2/Read_Write_Operation.jpeg?raw=true)
+
+![Writing operation](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment3/part2/Write_Operation.jpeg?raw=true)
+
+![Writing operation2](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment3/part2/Write_Operation_2.jpeg?raw=true)
+
+
+
 
