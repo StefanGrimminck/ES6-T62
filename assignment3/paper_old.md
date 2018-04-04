@@ -33,7 +33,7 @@ for(i; i < (argc - 4); i++){
 
 If the user specifies he wants to write to a certain address the following function is called:
 ```c
-write_buf(i2c_address, I2CFILENAME, i2c_buf, amount_read) == -1)
+write_buf(i2c_address, I2CFILENAME, i2c_buf, amount_read)
 ```
 
 If the user specifies he wants to read from a certain adress the read functions is called:
