@@ -39,7 +39,7 @@ write_buf(i2c_address, I2CFILENAME, i2c_buf, amount_read)
 If the user specifies he wants to read from a certain adress the read functions is called:
 
 ```c
-read_i2c(i2c_address, I2CFILENAME, read_buf, i2c_buf[1], i2c_buf[0]
+read_i2c(i2c_address, I2CFILENAME, read_buf, i2c_buf[1], i2c_buf[0])
 ``` 
 
 ### Writing values to the I2C Bus ###
