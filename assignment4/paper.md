@@ -1,4 +1,5 @@
-PWMCLK-CTRL 0x4000 40B8
+
+#### PWMCLK-CTRL 0x4000 40B8 ####
 
 |**Bit**| 	**Function**|**Our value**|
 |-------|---------------|--------------|
@@ -10,7 +11,7 @@ PWMCLK-CTRL 0x4000 40B8
 |11:8	|	PWM2_FREQ|
 
 
-PWM1_CTRL  0x4005 C000
+#### PWM1_CTRL  0x4005 C000 ####
 
 |**Bit**|		**Function**|		**Our value**|
 |-------|---------------|----------------|
