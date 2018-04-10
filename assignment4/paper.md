@@ -1,4 +1,6 @@
 
+
+## Setting PWM_OUT1 ##
 #### PWMCLK-CTRL 0x4000 40B8 ####
 
 |**Bit**| 	**Function**|**Our value**|
