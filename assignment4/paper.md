@@ -1,3 +1,8 @@
+## PWM block diagram ## 
+
+
+![PWM block diagram](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment4/PWM%20block%20diagram.png?raw=true)
+
 
 
 ## Setting PWM_OUT1 ##
