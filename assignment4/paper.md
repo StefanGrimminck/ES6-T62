@@ -1,7 +1,7 @@
 ## PWM block diagram ## 
 
 
-![PWM block diagram](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment4/PWM%20block%20diagram.png?raw=true)
+![PWM block diagram](PWM block diagram.png)
 
 
 
@@ -26,3 +26,8 @@
 |30	|	PWM1_PIN_LEVEL	|	n.v.t. | 
 |15:8|		PWM1_RELOADV	|	Fout = [PWM_CLK / PWM_RELOADV] / 256|
 |7:0	|	PWM1_DUTY	|	[LOW]/[HIGH] = [PWM_DUTY] / [256-PWM_DUTY]|
+
+##Testing
+
+To test our module, we used an oscilloscope connected to the correct pins on the LPC board. The pins that have to be used can be found in the schematic that was delivered with the board. 
+
