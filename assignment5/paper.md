@@ -73,3 +73,5 @@ By storing our data this way we can easily edit the registers of a physical pin,
  *(unsigned int*)(io_p2v(pinformatie.dir.set)) =  PIN_TO_BIT(pinformatie.LOC_IN_REG);
 ```
 Here we set the direction of the pin to input by setting the correspoding bit (`PIN_TO_BIT(pinformatie.LOC_IN_REG)`) in register `Px_DIR_SET`.
+
+Before we can do these operation we first have to map our phyisical pins to their port and corresponding register. When doing this we noticed that not all GPIO pins are handled the same way.
