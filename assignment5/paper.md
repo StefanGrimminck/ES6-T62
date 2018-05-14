@@ -26,7 +26,52 @@ P2.25-CKE-1		  |48	| J3 | L  UP
 P2.23    		    |56 | J3 | L  DOWN
 P2.22 		      |47	| J3 | PUSH
 
-Now we know to where the joystick output is mapped to we can read the corresponding registers. According to Table 662 (Port 2 Multiplexer Set Register) in the UM10326 datasheet we need to set bet 3 to tell the multiplexer we want to use pins 31:19 as GPIO. Now that the pins can be used as GPIO, we need to set the P2_DIR_CLR register so that the GPIO pins are set as input. After we've done that we can read trey values from the P2_INP_STATE register:
+Now we know to where the joystick output is mapped to we can read the corresponding registers. According to Table 662 (Port 2 Multiplexer Set Register) in the UM10326 datasheet we need to set bet 3 to tell the multiplexer we want to use pins 31:19 as GPIO. Now that the pins can be used as GPIO, we need to set the P2_DIR_CLR register so that the GPIO pins are set as input. After we've done that we can read the corresponding pins:
+
+OEM_PORT | OEM_PIN | CONNECTOR | PIN
+---------|---------|-----------|-----
+2	 | 27	   | 3	       | 49
+2	 | 26	   | 3	       | 57
+2	 | 25	   | 3	       | 48
+2	 | 23	   | 3	       | 56
+2	 | 22 	   | 3	       | 33
+
+When we read the values of these registers we can see that the register value changes:
+```sh
+# echo "r 3 49" > /dev/gpio 
+# cat /dev/gpio 
+Pin: 49 on connector 3 has been set to direction 0, with value 16
+# 
+# cat /dev/gpio 
+Pin: 49 on connector 3 has been set to direction 0, with value 0
+#
+# echo "r 3 57" > /dev/gpio 
+# cat /dev/gpio 
+Pin: 57 on connector 3 has been set to direction 0, with value 8
+# 
+# cat /dev/gpio 
+Pin: 57 on connector 3 has been set to direction 0, with value 0
+# 
+# echo "r 3 48" > /dev/gpio 
+# cat /dev/gpio 
+Pin: 48 on connector 3 has been set to direction 0, with value 4
+# 
+# cat /dev/gpio 
+Pin: 48 on connector 3 has been set to direction 0, with value 0
+#
+# echo "r 3 56" > /dev/gpio 
+# cat /dev/gpio 
+Pin: 56 on connector 3 has been set to direction 0, with value 2
+# cat /dev/gpio 
+Pin: 56 on connector 3 has been set to direction 0, with value 0
+#
+# echo "r 3 33" > /dev/gpio 
+# cat /dev/gpio 
+Pin: 33 on connector 3 has been set to direction 0, with value 2 
+# cat /dev/gpio 
+Pin: 33 on connector 3 has been set to direction 0, with value 0
+```
+note: initially this was done with peek & poke
 
 ## Part 2: Creating a kernel module for reading and writing from and to the GPIO pins
 The LPC3250 has GPIO aswel as GPO and GPI port. The program we created only uses the GPIO pins. These pins are described in Table 613, 614 and 615 of the UM10326 datahsheet:
@@ -70,8 +115,8 @@ struct OUTP {
 ```
 By storing our data this way we can easily edit the registers of a physical pin, for example:
 ```c
- *(unsigned int*)(io_p2v(pinformatie.dir.set)) =  PIN_TO_BIT(pinformatie.LOC_IN_REG);
+ *(unsigned int*)(io_p2v(pinformatie.dir.set)) =  PIN_TO_BIT(pinformatie.loc_in_reg.input_bit);
 ```
-Here we set the direction of the pin to input by setting the correspoding bit (`PIN_TO_BIT(pinformatie.LOC_IN_REG)`) in register `Px_DIR_SET`.
+Here we set the direction of the pin to input by setting the correspoding bit (`PIN_TO_BIT(pinformatie.loc_in_reg.input_bit)`) in register `Px_DIR_SET`.
 
 Before we can do these operation we first have to map our phyisical pins to their port and corresponding register. When doing this we noticed that not all GPIO pins are handled the same way.
