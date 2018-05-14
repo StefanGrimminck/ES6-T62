@@ -181,3 +181,18 @@ Pin: 24 on connector 2 has value 2
 ```
 We ofcourse also tested the other pins
 
+
+## References
+Walls, C. (2014, July 27). Device registers in C. Retrieved May 14, 2018, from https://www.embedded.com/design/programming-languages-and-tools/4432746/Device-registers-in-C
+
+Wells,K (2010).Linux kernel release 4.x GPIO-LPC32XX.c
+https://github.com/torvalds/linux/blob/master/drivers/gpio/gpio-lpc32xx.c
+
+Wells,K (2010).Linux kernel release 4.x PLATFORM.h
+https://github.com/torvalds/linux/blob/5924bbecd0267d87c24110cbe2041b5075173a25/arch/arm/mach-lpc32xx/include/mach/platform.h
+
+The Linux Kernel Programming Guide, visited on May 14, 2018, from
+https://fhict.instructure.com/courses/5839/pages/lkmpg-4-character-devices?module_item_id=219190
+
+The Linux Kernel Programming Guide, visited on May 14, 2018, from
+https://fhict.instructure.com/courses/5839/pages/lkmpg-6-sysfs?module_item_id=219188
