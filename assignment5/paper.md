@@ -159,6 +159,14 @@ which generated the following output:
 https://youtu.be/_G7N5PGAzrE
 
 We also tested the reading capability by connecting +3.3v to a this pin. This resulting in a bit in the register set to high.
+
 ![Testing GPIO](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment5/images/IMG_20180514_161709.jpg)
 
+```sh
+# cat /dev/gpio 
+Pin: 24 on connector 2 has value 0
+# cat /dev/gpio 
+Pin: 24 on connector 2 has value 2
+```
+We ofcourse also tested the other pins
 
