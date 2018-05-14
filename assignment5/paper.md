@@ -78,7 +78,7 @@ P0   | P0.0 - P0.7
 P1   | P1.0 - P1.23
 P2   | P2.0 - P.12
 
-Before we can do these operation we first have to map our physical pins to their port and corresponding register. When doing this we noticed that not all GPIO pins are handled the same way. First we have to disable the LCD for P0.0 to P0.7 to work. We do this by setting the LCDCLK_CTRL to 0. We also noticed that the GPIO ports on P1 are not usable, because these are used as address bus of the RAM (see table 91 in UM10326 datasheet).
+Before we can do these operation we first have to map our physical pins to their port and corresponding register. When doing this we noticed that not all GPIO pins are handled the same way. First we have to disable the LCD for P0.0 to P0.7 to work. We do this by setting the LCDCLK_CTRL to 0. We also noticed that the GPIO ports on P1 are not usable, because these are used as address bus of the RAM (see table 91 in UM10326 datasheet). P3 offers us 5 GPIO pins where two of them are used for the Ethernet connection. This leaves us with GPIO_0, GPIO_1 and GPI_5
 
 Now we are left with the following ports
 
@@ -95,6 +95,9 @@ Now we are left with the following ports
 |P2.0 |3 | 47 |-|P2.7 |3 | 45
 |P2.1 |3 | 56 |-|P2.8 |1 | 49
 |P2.9 |1 | 50
+|GPIO_0 | 3| 54
+|GPIO_1 | 3| 46
+|GPIO_5 | 3|12
 
 
 These port have to be mapped with the corresponding input, output & direction registers. In our code we've done this by using a structure named Pinfo;
