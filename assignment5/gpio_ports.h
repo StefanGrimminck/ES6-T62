@@ -39,7 +39,6 @@
 #define LCDCLK_CTRL			0x40004054
 
 #define PIN_TO_BIT(x)	(1 << (x))
-#define GPIO3_PIN_TO_BIT(x)		(1 << ((x) + 25))
 
 struct Port {
 	unsigned int inp_state;
@@ -67,14 +66,19 @@ struct OUTP {
 	unsigned int clr;
 };
 
+struct LOC_IN_REG {
+	unsigned int inputbit;
+	unsigned int outputbit;
+};
+
 
 typedef struct Pinformation{
 	int pin;
-	int jumper;
+	int connector;
 	struct DIR dir;
     struct OUTP output;
 	struct INP input;
-	int LOC_IN_REG;
+	struct LOC_IN_REG loc_in_reg;
 }Pinfo;
 
 
