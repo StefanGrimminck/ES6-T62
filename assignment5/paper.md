@@ -132,6 +132,17 @@ By storing our data this way we can easily edit the registers of a physical pin,
 ```
 Here we set the direction of the pin to input by setting the correspoding bit (`PIN_TO_BIT(pinformatie.loc_in_reg.input_bit)`) in register `Px_DIR_SET`.
 
+### How to use our software
+The sys filesystem is used to set the io state of our pins, so that a GPIO pin can be set as input and as output. This is done by:
+```
+echo "[i/o] [pin] [connector]" > /sys/kernel/gpio/data
+```
+The input value of the pins can be read or output value can be set by using the dev filesystem. This is done by
+```
+echo "[r/l/h] [pin] [connector]" > /dev/gpio
+```
+
+
 
 ## Testing
 
