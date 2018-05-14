@@ -119,4 +119,30 @@ By storing our data this way we can easily edit the registers of a physical pin,
 ```
 Here we set the direction of the pin to input by setting the correspoding bit (`PIN_TO_BIT(pinformatie.loc_in_reg.input_bit)`) in register `Px_DIR_SET`.
 
-Before we can do these operation we first have to map our phyisical pins to their port and corresponding register. When doing this we noticed that not all GPIO pins are handled the same way.
+Before we can do these operation we first have to map our phyisical pins to their port and corresponding register. When doing this we noticed that not all GPIO pins are handled the same way. First we have to disable the LCD for P0.0 to P0.7 to work. We do this by setting the LCDCLK_CTRL to 0.
+
+## Testing
+
+Ofcourse our kernel module has to be tested before we van give the application to the customer.
+
+We tested this by pin 24 on connector output and setting it to high via the following commands:
+```sh
+# echo "o 2 24" > /sys/kernel/buffer/data  
+Pin: 24 on connector 2 has been set to output
+# 
+# echo  "r 2 24" > /dev/gpio 
+#
+# cat /dev/gpio            
+Pin: 24 on connector 2 has been set to direction 1, with value 0
+# echo  "h 2 24" > /dev/gpio 
+BIT: 2
+INSIDE REG: 0x40028044
+Pin: 24 on connector: 2 is set# 
+BIT: 2
+INSIDE REG: 0x40028048
+# echo  "h l 24" > /dev/gpio
+```
+which generated the following output:
+https://youtu.be/_G7N5PGAzrE
+
+
