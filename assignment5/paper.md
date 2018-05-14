@@ -64,12 +64,6 @@ Pin: 48 on connector 3 has been set to direction 0, with value 0
 Pin: 56 on connector 3 has been set to direction 0, with value 2
 # cat /dev/gpio 
 Pin: 56 on connector 3 has been set to direction 0, with value 0
-#
-# echo "r 3 33" > /dev/gpio 
-# cat /dev/gpio 
-Pin: 33 on connector 3 has been set to direction 0, with value 2 
-# cat /dev/gpio 
-Pin: 33 on connector 3 has been set to direction 0, with value 0
 ```
 note: initially this was done with peek & poke
 
@@ -83,6 +77,35 @@ Port | GPIO Pins
 P0   | P0.0 - P0.7
 P1   | P1.0 - P1.23
 P2   | P2.0 - P.12
+
+Before we can do these operation we first have to map our physical pins to their port and corresponding register. When doing this we noticed that not all GPIO pins are handled the same way. First we have to disable the LCD for P0.0 to P0.7 to work. We do this by setting the LCDCLK_CTRL to 0. We also noticed that the GPIO ports on P1 are not usable, because these are used as address bus of the RAM (see table 91 in UM10326 datasheet).
+
+Now we are left with the following ports
+
+| Port | Connector | Pin
+|------|-----------|----
+|P0.0 |2 | 40
+|P0.1 |2 | 24
+|P0.2 |2 | 11
+|P0.3 |2 | 12
+|P0.4 |2 | 13
+|P0.5 |2 | 14
+|P0.6 |3 | 33
+|P0.7 |1 | 27
+|P2.0 |3 | 47 
+|P2.1 |3 | 56
+|P2.10 |1 | 51
+|P2.11 |1 | 52
+|P2.12 |1 | 53
+|P2.2 |3 | 48
+|P2.3 |3 | 57
+|P2.4 |3 | 49
+|P2.5 |3 | 58
+|P2.6 |3 | 50
+|P2.7 |3 | 45
+|P2.8 |1 | 49
+|P2.9 |1 | 50
+
 
 These port have to be mapped with the corresponding input, output & direction registers. In our code we've done this by using a structure named Pinfo;
 ```c
@@ -119,7 +142,6 @@ By storing our data this way we can easily edit the registers of a physical pin,
 ```
 Here we set the direction of the pin to input by setting the correspoding bit (`PIN_TO_BIT(pinformatie.loc_in_reg.input_bit)`) in register `Px_DIR_SET`.
 
-Before we can do these operation we first have to map our phyisical pins to their port and corresponding register. When doing this we noticed that not all GPIO pins are handled the same way. First we have to disable the LCD for P0.0 to P0.7 to work. We do this by setting the LCDCLK_CTRL to 0.
 
 ## Testing
 
@@ -137,10 +159,11 @@ Pin: 24 on connector 2 has been set to direction 1, with value 0
 # echo  "h 2 24" > /dev/gpio 
 BIT: 2
 INSIDE REG: 0x40028044
-Pin: 24 on connector: 2 is set# 
+Pin: 24 on connector: 2 is set
+# echo  "l 2 24" > /dev/gpio 
 BIT: 2
 INSIDE REG: 0x40028048
-# echo  "h l 24" > /dev/gpio
+Pin: 24 on connector: 2 is cleared
 ```
 which generated the following output:
 https://youtu.be/_G7N5PGAzrE
