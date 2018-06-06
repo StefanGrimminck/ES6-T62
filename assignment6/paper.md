@@ -29,7 +29,22 @@ The intiale state of the button interupt is set to level-edged, which is in our 
  ### Convertions with the ADC
  Now that the button works and triggers the `adc_interrupt (int irq, void * dev_id)` function, we can start working on using the ADC itself.
 
-First we start the ADC with the following code:
+The ADC interrupt are requested with the following code:
+```c
+    if (request_irq (IRQ_LPC32XX_TS_IRQ, adc_interrupt, IRQF_DISABLED, "IRQ_ADC_INT_INTERRUPT", NULL) != 0)
+    {
+        printk(KERN_ALERT "ADC IRQ request failed\n");
+    }
+  ```
+This code was already written for us, but we had to find the interrupt line to allocate ourselves, wich became 'IRQ_LPC32XX_TS_IRQ' for the adc interrupt and 'IRQ_LPC32XX_GPI_01' for the button interrupt.
+
+The ADC interrupt line to allocated is located in "Interrupt Enable Register for Sub Interrupt Controller 1"  with bit 7 (Touch screen irq interrupt)
+
+When the EINT0 button is pressed, the GP_Interupt will fire and call function start_adc() this function selects the right A/D channel to convert with the following code:
+```c
+WRITE_REG((data & ~0x0030) | ((channel << 4) & 0x0030), ADC_SELECT);
+```
+and start the ADC convertion with:
 ```c
     /* Bit 2 in register ADC_CTRL set => the ADC is powered up and reset */
    	data = READ_REG(ADC_CTRL);
@@ -39,5 +54,8 @@ First we start the ADC with the following code:
 This code has been created according to the A/D Control Register:
 ![A/D Control Register](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/AD_control_register.png)
 
+After the conversion has finished the the `adc_interrupt (int irq, void * dev_id)` is called and values logged into the kernel log.
 
+Both the interrupts can be found in /proc/interrupts `IRQ_ADC_INT_INTERRUPT` for our ADC and `IRQ_GPI_01_INTERRUPT` for our button:
+![interrupts](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/adc_interrupts.png)
 
