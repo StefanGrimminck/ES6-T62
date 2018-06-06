@@ -27,7 +27,7 @@ The intiale state of the button interupt is set to level-edged, which is in our 
  ![ACtivation Type Register SIC2_ATR](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/Activation_Type_Register.png)
  
  ### Convertions with the ADC
- Now that the button works and triggers the `adc_interrupt (int irq, void * dev_id)` function, we can start working on using the ADC itself.
+ Now that the button works we can start working on using the ADC itself.
 
 The ADC interrupt are requested with the following code:
 ```c
@@ -36,7 +36,7 @@ The ADC interrupt are requested with the following code:
         printk(KERN_ALERT "ADC IRQ request failed\n");
     }
   ```
-This code was already written for us, but we had to find the interrupt line to allocate ourselves, wich became 'IRQ_LPC32XX_TS_IRQ' for the adc interrupt and 'IRQ_LPC32XX_GPI_01' for the button interrupt (which are a bit unfortunately named).
+This code was already written for us, but we had to find the interrupt line to allocate ourselves, wich became 'IRQ_LPC32XX_TS_IRQ' for the adc interrupt and 'IRQ_LPC32XX_GPI_01' for the button interrupt.
 
 The ADC interrupt line to allocated is located in "Interrupt Enable Register for Sub Interrupt Controller 1"  with bit 7 (Touch screen irq interrupt)
 
@@ -56,7 +56,7 @@ This code has been created according to the A/D Control Register:
 
 After the conversion has finished the the `adc_interrupt (int irq, void * dev_id)` is called and values logged into the kernel log.
 
-Both the interrupts can be found in /proc/interrupts `IRQ_ADC_INT_INTERRUPT` for our ADC and `IRQ_GPI_01_INTERRUPT` for our button:
+Both the interrupts can be found in /proc/interrupts `IRQ_ADC_INT_INTERRUPT` for our ADC and `IRQ_GPI_01_INTERRUPT` for our button (which are a bit unfortunately named):
 
 ![interrupts](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/adc_interrupts.png)
 
@@ -83,6 +83,20 @@ typedef struct DriverInformation{
 
 After the paring the minor number with the channel the ADC is started with `adc_start (channel);`
 
+
+
+## Testing
+
+Testing acceloreter data by moving the board horizontal:
+![Horizontal Test](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/SIDEWAYS_test.png)
+
+Testing acceloreter data by moving the board vertical:
+![Vetical Test](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/HORIZONTAL_test.png)
+
+Testing the board by changing the value of the Red Potentiometer
+![POT Test](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/POT_test.png)
+Testing retrieving ADC data via device nodes:
+![Device Nodes Test](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/Device_NODES.png)
 
 
 
