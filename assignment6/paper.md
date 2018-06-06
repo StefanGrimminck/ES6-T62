@@ -2,7 +2,7 @@
 Stefan Grimminck & Skip Geldens
 T62
 
-## Part 1: Discovery 
+## Part 1: Assignment 1 
 We set out to make a kernel module for a customer that want to read the ADC values via a character device. First we created a program to write the ADC values to the kernel log when the button connected to EINT0 was pressed. After that we impelented the devfs_read() so that the user could make use of the converted ADC values via device nodes.
 
 ### triggering an interrupt on button EINT0
@@ -36,7 +36,7 @@ The ADC interrupt are requested with the following code:
         printk(KERN_ALERT "ADC IRQ request failed\n");
     }
   ```
-This code was already written for us, but we had to find the interrupt line to allocate ourselves, wich became 'IRQ_LPC32XX_TS_IRQ' for the adc interrupt and 'IRQ_LPC32XX_GPI_01' for the button interrupt.
+This code was already written for us, but we had to find the interrupt line to allocate ourselves, wich became 'IRQ_LPC32XX_TS_IRQ' for the adc interrupt and 'IRQ_LPC32XX_GPI_01' for the button interrupt (which are a bit unfortunately named).
 
 The ADC interrupt line to allocated is located in "Interrupt Enable Register for Sub Interrupt Controller 1"  with bit 7 (Touch screen irq interrupt)
 
@@ -59,4 +59,30 @@ After the conversion has finished the the `adc_interrupt (int irq, void * dev_id
 Both the interrupts can be found in /proc/interrupts `IRQ_ADC_INT_INTERRUPT` for our ADC and `IRQ_GPI_01_INTERRUPT` for our button:
 
 ![interrupts](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/adc_interrupts.png)
+
+
+
+
+## Assignment 2
+
+For our next assignment our user must be able to receive the ADC values not via kernel lob, but device nodes. Each node gets its own adc convertion, so: ADC(0) get minor number 0,  ADC(1) get minor number 1, and ofcourse  ADC(2) get minor number 2.
+
+Our minor number is saved in a stuct called "DeviceInfo" and is retrieved and coupled to a channel with the following code:
+```c
+	DriverInfo* info = (DriverInfo*)file->private_data;
+	int channel = info->minor;
+```
+
+Struct DriverInfo is implented as follows:
+```
+typedef struct DriverInformation{
+	char msg[BUF_SIZE];
+	int minor;
+}DriverInfo;
+```
+
+After the paring the minor number with the channel the ADC is started with `adc_start (channel);`
+
+
+
 
