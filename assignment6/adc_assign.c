@@ -22,7 +22,7 @@
 #define	ADC_CTRL			io_p2v(0x40048008)
 #define ADC_VALUE           io_p2v(0x40048048)
 #define SIC2_ATR            io_p2v(0x40010010)
-#define AD_PDN_STROBE 		(1 << 1)		/* G, waarom niet gewoon twee? Dus niet */
+#define AD_PDN_STROBE 		(1 << 1)
 #define ADC_VALUE_MASK		0x3FF
 #define EINT0_LOC			(1 << 23)
 #define AD_PDN_CTRL			(1 << 2)
@@ -31,7 +31,7 @@
 
 DECLARE_WAIT_QUEUE_HEAD(adc_interrupt_event);
 static bool 			adc_interrupt_flag = false;
-static bool 			gpi_interrupt_print = false;
+static bool 			gpi_interrupt_show = false;
 
 typedef struct DriverInformation{
 	char msg[BUF_SIZE];
@@ -69,7 +69,7 @@ static void adc_init (void)
     
     /* Bit 2 in register ADC_CTRL set => the ADC is powered up and reset */
     data = READ_REG(ADC_CTRL);
-	data |= AD_PDN_CTRL; 				//AD_PDN_CTRL
+	data |= AD_PDN_CTRL;
 	WRITE_REG (data, ADC_CTRL);
 	
 	/* Edge triggering op GPI_1 Table 5.4.7 */
@@ -77,14 +77,11 @@ static void adc_init (void)
 	data |= EINT0_LOC;
 	WRITE_REG (data, SIC2_ATR);
 	
-	//IRQ init - Interrupt Enable Register for Sub Interrupt Controller 1
-	// 7th bit in register = 0x40 in hex => TS_IRQ(ADC_INT) Touch screen irq interrupt
     if (request_irq (IRQ_LPC32XX_TS_IRQ, adc_interrupt, IRQF_DISABLED, "IRQ_ADC_INT_INTERRUPT", NULL) != 0)
     {
         printk(KERN_ALERT "ADC IRQ request failed\n");
     }
     
-    /* 7 op J3, LPC3250_OEM_Board_Users_Guide_Rev_B Page 35 */
     if (request_irq (IRQ_LPC32XX_GPI_01, gp_interrupt, IRQF_DISABLED, "IRQ_GPI_01_INTERRUPT", NULL) != 0)
     {
         printk (KERN_ALERT "GP IRQ request failed\n");
@@ -108,9 +105,6 @@ static void adc_start (unsigned char channel)
 	//nu ook globaal zetten zodat we de interrupt kunnen herkennen
 	adc_channel = channel;
 	
-	*(unsigned int*)(LPC32XX_CLKPWR_LCDCLK_CTRL) = 0x00;
-	*(unsigned int*)(io_p2v(0x40028044)) = (1 << 1); 
-	
 	/* Start*/
     data  = READ_REG(ADC_CTRL);
     data |= AD_PDN_STROBE;
@@ -119,11 +113,9 @@ static void adc_start (unsigned char channel)
 
 static irqreturn_t adc_interrupt (int irq, void * dev_id)
 {	
-	
     adc_values[adc_channel] = READ_REG(ADC_VALUE) & ADC_VALUE_MASK;
     
-
-    if (gpi_interrupt_print)
+    if (gpi_interrupt_show)
 	{
 		printk(KERN_WARNING "ADC(%d)=%d\n", adc_channel, adc_values[adc_channel]);
 		adc_channel++;
@@ -141,7 +133,7 @@ static irqreturn_t adc_interrupt (int irq, void * dev_id)
 
 static irqreturn_t gp_interrupt(int irq, void * dev_id)
 {	
-	gpi_interrupt_print = true;
+	gpi_interrupt_show = true;
     adc_start (0);
 
     return (IRQ_HANDLED);
@@ -202,8 +194,8 @@ static int device_open (struct inode * inode, struct file * file)
 static int device_release (struct inode * inode, struct file * file)
 {
     kfree(file->private_data);
-
     module_put(THIS_MODULE);
+    
 	return 0;
 }
 
@@ -263,7 +255,6 @@ void cleanup_module()
 {
 	cdev_del(&adcdev.cdev);
 	unregister_chrdev_region(adcdev.dev, ADC_NUMCHANNELS);
-
 	adc_exit();
 }
 
@@ -273,4 +264,3 @@ module_init(adcdev_init);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Skip Geldens & Stefan Grimminck");
 MODULE_DESCRIPTION("ADC Driver");
-
