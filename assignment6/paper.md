@@ -57,5 +57,6 @@ This code has been created according to the A/D Control Register:
 After the conversion has finished the the `adc_interrupt (int irq, void * dev_id)` is called and values logged into the kernel log.
 
 Both the interrupts can be found in /proc/interrupts `IRQ_ADC_INT_INTERRUPT` for our ADC and `IRQ_GPI_01_INTERRUPT` for our button:
+
 ![interrupts](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/adc_interrupts.png)
 
