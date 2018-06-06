@@ -5,7 +5,7 @@ T62
 ## Part 1: Discovery 
 We set out to make a kernel module for a customer that want to read the ADC values via a character device. First we created a program to write the ADC values to the kernel log when the button connected to EINT0 was pressed. After that we impelented the devfs_read() so that the user could make use of the converted ADC values via device nodes.
 
-### Trigger ADC on button interrupt
+### triggering an interrupt on button EINT0
 According to the sheet below the gp_interrupt function should be called when EINT0 is pressed. This function then starts the ADC, which calculates the conversion values. This is done for the tree ADC registers (so three times).
 
 ![Assignment 1 sheet](images/assignment_1_sheet.png)
@@ -25,5 +25,19 @@ The intiale state of the button interupt is set to level-edged, which is in our 
  Where SIC2_ATTR is the Sub2 Activation Type Register and EINT0_LOC is the 23th bit in the register (GPI_1). See table below:
  
  ![ACtivation Type Register SIC2_ATR](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/Activation_Type_Register.png)
+ 
+ ### Convertions with the ADC
+ Now that the button works and triggers the `adc_interrupt (int irq, void * dev_id)` function, we can start working on using the ADC itself.
+
+First we start the ADC with the following code:
+```c
+    /* Bit 2 in register ADC_CTRL set => the ADC is powered up and reset */
+   	data = READ_REG(ADC_CTRL);
+	data |= AD_PDN_CTRL;
+	WRITE_REG (data, ADC_CTRL);
+```
+This code has been created according to the A/D Control Register:
+![A/D Control Register](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/AD_control_register.png)
+
 
 
