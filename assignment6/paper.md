@@ -95,6 +95,7 @@ Testing acceloreter data by moving the board vertical:
 
 Testing the board by changing the value of the Red Potentiometer
 ![POT Test](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/POT_test.png)
+
 Testing retrieving ADC data via device nodes:
 ![Device Nodes Test](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/Device_NODES.png)
 
