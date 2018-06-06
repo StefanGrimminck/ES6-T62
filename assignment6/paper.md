@@ -78,7 +78,7 @@ The devices that is connected to this channel is decided on the basis of which j
 
 
 
-Our user also must be able to receive the ADC values not via kernel lob, but device nodes. Each node gets its own adc convertion, so: ADC(0) get minor number 0,  ADC(1) get minor number 1, and ofcourse  ADC(2) get minor number 2.
+Our user also must be able to receive the ADC values not via kernel log, but device nodes. Each node gets its own adc convertion, so: ADC(0) get minor number 0,  ADC(1) get minor number 1, and ofcourse  ADC(2) get minor number 2.
 
 Our minor number is saved in a stuct called "DeviceInfo" and is retrieved and coupled to a channel with the following code:
 ```c
@@ -98,7 +98,7 @@ After the paring the minor number with the channel the ADC is started with `adc_
 
 
 
-## Testing
+## Testing ADC data
 
 Testing acceloreter data by moving the board horizontal:
 ![Horizontal Test](images/SIDEWAYS_test.png)
@@ -111,6 +111,30 @@ Testing the board by changing the value of the Red Potentiometer
 
 Testing retrieving ADC data via device nodes:
 ![Device Nodes Test](images/Device_NODES.png)
+
+## Testing ADC speed
+
+The speeds have been tested by setting or clearing an output pin on the Connectors. This is done by:
+
+Pin high: 
+```c
+	*(unsigned int*)(LPC32XX_CLKPWR_LCDCLK_CTRL) = 0x00;
+	*(unsigned int*)(io_p2v(0x40028044)) = (1 << 1); 
+```
+
+Pin low:
+```c
+	*(unsigned int*)(LPC32XX_CLKPWR_LCDCLK_CTRL) = 0x00;
+	*(unsigned int*)(io_p2v(0x40028048)) = (1 << 1); 
+```
+Time for gp interupt to fire after EINT0 pressed
+![Interrupt key p2.10](images/Button_trigger%26interrupt.jpeg)
+
+Time for adc interupt to fire after EINT0 pressed
+![Interrupt key p2.10 & Conversie](images/interupt_called%26adc_conversie.jpeg)
+
+Time it takes to do the ADC conversion.
+![Interrupt key p2.10](images/adc_conversie.jpeg)
 
 
 
