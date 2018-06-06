@@ -24,7 +24,7 @@ The intiale state of the button interupt is set to level-edged, which is in our 
  ``` 
  Where SIC2_ATTR is the Sub2 Activation Type Register and EINT0_LOC is the 23th bit in the register (GPI_1). See table below:
  
- ![ACtivation Type Register SIC2_ATR](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/Activation_Type_Register.png)
+ ![ACtivation Type Register SIC2_ATR](images/Activation_Type_Register.png)
  
  ### Convertions with the ADC
  Now that the button works we can start working on using the ADC itself.
@@ -52,20 +52,33 @@ and start the ADC convertion with:
 	WRITE_REG (data, ADC_CTRL);
 ```
 This code has been created according to the A/D Control Register:
-![A/D Control Register](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/AD_control_register.png)
+![A/D Control Register](images/AD_control_register.png)
 
 After the conversion has finished the the `adc_interrupt (int irq, void * dev_id)` is called and values logged into the kernel log.
 
 Both the interrupts can be found in /proc/interrupts `IRQ_ADC_INT_INTERRUPT` for our ADC and `IRQ_GPI_01_INTERRUPT` for our button (which are a bit unfortunately named):
 
-![interrupts](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/adc_interrupts.png)
+![interrupts](images/adc_interrupts.png)
+
+### Making the kernel sleep
+We also make use of the `wait_event_interruptible()` and `wake_up_interruptible()` functions for letting the kernel sleep. We do this because it takes some time before the ADC values are calculated. After the calculations have been done and the adc interrupt is triggered the process get awakend again.
+
+### Potentiometer & Accelerometer values
+
+The values the ADC outputs correnspond with the onboard accelerometer & potmeter. This can be found in QVGA_Base_Board_v1.2.pdf:
+![accelerometer](images/accelerometer.png)
+
+As described above channels 0 is connected to x-axis, 1 is connected to y-axis and 2 is connected to the z-axis of the accelerometer.
+The potmeter is also connected to channel 2 as stated below:
+![potentiometer](images/potmeter.png?raw=true)
+
+The devices that is connected to this channel is decided on the basis of which jumper is connected:
+![jumper for AD0.2](images/jumpers.png)
 
 
 
 
-## Assignment 2
-
-For our next assignment our user must be able to receive the ADC values not via kernel lob, but device nodes. Each node gets its own adc convertion, so: ADC(0) get minor number 0,  ADC(1) get minor number 1, and ofcourse  ADC(2) get minor number 2.
+Our user also must be able to receive the ADC values not via kernel lob, but device nodes. Each node gets its own adc convertion, so: ADC(0) get minor number 0,  ADC(1) get minor number 1, and ofcourse  ADC(2) get minor number 2.
 
 Our minor number is saved in a stuct called "DeviceInfo" and is retrieved and coupled to a channel with the following code:
 ```c
@@ -80,24 +93,24 @@ typedef struct DriverInformation{
 	int minor;
 }DriverInfo;
 ```
-
 After the paring the minor number with the channel the ADC is started with `adc_start (channel);`
+
 
 
 
 ## Testing
 
 Testing acceloreter data by moving the board horizontal:
-![Horizontal Test](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/SIDEWAYS_test.png)
+![Horizontal Test](images/SIDEWAYS_test.png)
 
 Testing acceloreter data by moving the board vertical:
-![Vetical Test](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/HORIZONTAL_test.png)
+![Vetical Test](images/HORIZONTAL_test.png)
 
 Testing the board by changing the value of the Red Potentiometer
-![POT Test](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/POT_test.png)
+![POT Test](images/POT_test.png)
 
 Testing retrieving ADC data via device nodes:
-![Device Nodes Test](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/Device_NODES.png)
+![Device Nodes Test](images/Device_NODES.png)
 
 
 
