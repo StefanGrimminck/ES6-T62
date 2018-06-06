@@ -10,12 +10,20 @@ According to the sheet below the gp_interrupt function should be called when EIN
 
 ![Assignment 1 sheet](images/assignment_1_sheet.png)
 
+First we need to find the port the interupt key is connected to. When searching trough the system scematics we came upon this picture:
+
+![Interrupt Key](images/Interrupt_key_p2.10.png)
+
+When tracing P2.10-EINT0 back to the corresponding LPC port we found out it was connected to GPI_01 and pin 7 on connector 3 (this was later used for connecting the probes for testing). We had found the LCP port by looking up "GPIO1" in Chapter 4 of the LPC3250 Development's kit - User's Guide "Signal Mapping to QVGA Base Board".
+
 The intiale state of the button interupt is set to level-edged, which is in our case not useful. This is why we first set the trigger to level-edged with the following c code.
 ```c
 	data = READ_REG(SIC2_ATR);
 	data |= EINT0_LOC;
 	WRITE_REG (data, SIC2_ATR);
  ``` 
- Where SIC2_ATTR is the Sub2 Activation Type Register and EINT0_LOC is the 23th bit in the register (GPI_1)
+ Where SIC2_ATTR is the Sub2 Activation Type Register and EINT0_LOC is the 23th bit in the register (GPI_1). See table below:
+ 
+ ![ACtivation Type Register SIC2_ATR](https://github.com/StefanGrimminck/ES6-T62/blob/master/assignment6/images/Activation_Type_Register.png)
 
 
